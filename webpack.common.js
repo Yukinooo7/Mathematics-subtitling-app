@@ -4,7 +4,11 @@ const path = require('path');
 
 module.exports = {
   mode: 'development',
-  entry: './src/js/index.js',
+  // entry: './src/js/index.js',
+  entry: {
+    'mainPage': './src/js/index.js',
+    'videoPage': './src/js/index_video.js'
+  },
   // TODO: Explain Source Map
   devtool: 'inline-source-map',
   target: 'electron-renderer',
@@ -44,7 +48,7 @@ module.exports = {
     extensions: ['.js'],
   },
   output: {
-    filename: 'app.js',
     path: path.resolve(__dirname, 'build', 'js'),
+    filename: '[name].js',
   },
 };

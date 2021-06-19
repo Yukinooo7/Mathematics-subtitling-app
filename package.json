@@ -1,5 +1,5 @@
 {
-  "name": "mathematicssubtitlingapp",
+  "name": "mathematics_subtitling_app",
   "version": "1.0.0",
   "description": "This application is for editing subtitles and add LaTeX notations into subtitles",
   "main": "main.js",
@@ -72,12 +72,14 @@
   "dependencies": {
     "@babel/preset-env": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
+    "@electron/remote": "^1.2.0",
     "antd": "^4.14.1",
     "babel-loader": "^8.2.2",
     "css-loader": "^5.2.6",
     "electron-reload": "^1.5.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-player": "^2.9.0",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
     "sass": "^1.35.1",

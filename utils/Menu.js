@@ -1,4 +1,9 @@
+const { electron } = require('webpack');
 
+const { BrowserWindow } = require('electron').remote
+// import configureStore from '../store';
+
+let newWin = null
 
 exports.createTemplate = app => {
   return [
@@ -9,141 +14,173 @@ exports.createTemplate = app => {
         click: () => {
           app.quit();
         }
-    }]
-    },{
-    label: 'Edit',
-    submenu: [
-      {
-        label: "Undo",
-        accelerator: "CmdOrCtrl+Z",
-        selector: "undo:"
-      },
-      {
-        label: "Redo",
-        accelerator: "Shift+CmdOrCtrl+Z",
-        selector: "redo:"
-      },
-      {
-        type: "separator"
-      },
-      {
-        label: "Cut",
-        accelerator: "CmdOrCtrl+X",
-        selector: "cut:"
-      },
-      {
-        label: "Copy",
-        accelerator: "CmdOrCtrl+C",
-        selector: "copy:"
-      },
-      {
-        label: "Paste",
-        accelerator: "CmdOrCtrl+V",
-        selector: "paste:"
-      },
-      {
-        label: "Select All",
-        accelerator: "CmdOrCtrl+A",
-        selector: "selectAll:"
-      }
-    ]
-  }, {
-    label: 'View',
-    submenu: [{
-      label: 'Reload',
-      accelerator: 'CmdOrCtrl+R',
-      click: (_, focusedWindow) => {
-        if (focusedWindow) {
-          // on reload, start fresh and close any old
-          // open secondary windows
-          if (focusedWindow.id === 1) {
-            const { BrowserWindow } = require('electron');
-            BrowserWindow.getAllWindows().forEach(win => {
-              if (win.id > 1) {
-                win.close();
-              }
-            })
+      }]
+    }, {
+      label: 'File',
+      submenu: [{
+        label: 'Open',
+        accelerator: 'CmdOrCtrl+O',
+        click: () => {
+          var electron_dialog = require('electron').dialog
+          electron_dialog.showOpenDialog({
+            properties: ['openFile'],
+            filters: [
+              { name: 'Videos', extensions: ['mp4'] }
+            ]
+          }).then((result) => {
+            let cancel = result.canceled
+            let filePaths = result.filePaths
+            if (!cancel && filePaths.length > 0) {
+              console.log(result)
+
+              newWin = new BrowserWindow({
+                width: 500,
+                height: 500,
+              })
+              newWin.loadFile('splash.html')
+              newWin.on('close', () => {
+                newWin = null
+              })
+            }
+          })
+        }
+      }]
+
+
+    }, {
+      label: 'Edit',
+      submenu: [
+        {
+          label: "Undo",
+          accelerator: "CmdOrCtrl+Z",
+          selector: "undo:"
+        },
+        {
+          label: "Redo",
+          accelerator: "Shift+CmdOrCtrl+Z",
+          selector: "redo:"
+        },
+        {
+          type: "separator"
+        },
+        {
+          label: "Cut",
+          accelerator: "CmdOrCtrl+X",
+          selector: "cut:"
+        },
+        {
+          label: "Copy",
+          accelerator: "CmdOrCtrl+C",
+          selector: "copy:"
+        },
+        {
+          label: "Paste",
+          accelerator: "CmdOrCtrl+V",
+          selector: "paste:"
+        },
+        {
+          label: "Select All",
+          accelerator: "CmdOrCtrl+A",
+          selector: "selectAll:"
+        }
+      ]
+    }, {
+      label: 'View',
+      submenu: [{
+        label: 'Reload',
+        accelerator: 'CmdOrCtrl+R',
+        click: (_, focusedWindow) => {
+          if (focusedWindow) {
+            // on reload, start fresh and close any old
+            // open secondary windows
+            if (focusedWindow.id === 1) {
+              const { BrowserWindow } = require('electron');
+              BrowserWindow.getAllWindows().forEach(win => {
+                if (win.id > 1) {
+                  win.close();
+                }
+              })
+            }
+            focusedWindow.reload()
           }
-          focusedWindow.reload()
         }
-      }
-    }, {
-      label: 'Toggle Full Screen',
-      accelerator: (() => {
-        if (process.platform === 'darwin') {
-          return 'Ctrl+Command+F'
-        } else {
-          return 'F11'
-        }
-      })(),
-      click: (_, focusedWindow) => {
-        if (focusedWindow) {
-          focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
-        }
-      }
-    }, {
-      label: 'Toggle Developer Tools',
-      accelerator: (() => {
-        if (process.platform === 'darwin') {
-          return 'Alt+Command+I'
-        } else {
-          return 'Ctrl+Shift+I'
-        }
-      })(),
-      click: (_, focusedWindow) => {
-        if (focusedWindow) {
-          focusedWindow.toggleDevTools()
-        }
-      }
-    }, {
-      type: 'separator'
-    }, {
-      label: 'Mathematics subtitling App Demo',
-      click: function (_, focusedWindow) {
-        if (focusedWindow) {
-          const options = {
-            type: 'info',
-            title: 'Application Menu Demo',
-            buttons: ['Ok', 'Cancel'],
-            message: 'This demo is for the Menu section, showing how to create a clickable menu item in the application menu.'
+      }, {
+        label: 'Toggle Full Screen',
+        accelerator: (() => {
+          if (process.platform === 'darwin') {
+            return 'Ctrl+Command+F'
+          } else {
+            return 'F11'
           }
-          const { dialog } = require('electron');
-          dialog.showMessageBox(focusedWindow, options)
+        })(),
+        click: (_, focusedWindow) => {
+          if (focusedWindow) {
+            focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
+          }
         }
-      }
-    }]
-  }, {
-    label: 'Window',
-    role: 'window',
-    submenu: [{
-      label: 'Minimize',
-      accelerator: 'CmdOrCtrl+M',
-      role: 'minimize'
+      }, {
+        label: 'Toggle Developer Tools',
+        accelerator: (() => {
+          if (process.platform === 'darwin') {
+            return 'Alt+Command+I'
+          } else {
+            return 'Ctrl+Shift+I'
+          }
+        })(),
+        click: (_, focusedWindow) => {
+          if (focusedWindow) {
+            focusedWindow.toggleDevTools()
+          }
+        }
+      }, {
+        type: 'separator'
+      }, {
+        label: 'Mathematics subtitling App Demo',
+        click: function (_, focusedWindow) {
+          if (focusedWindow) {
+            const options = {
+              type: 'info',
+              title: 'Application Menu Demo',
+              buttons: ['Ok', 'Cancel'],
+              message: 'This demo is for the Menu section, showing how to create a clickable menu item in the application menu.'
+            }
+            const { dialog } = require('electron');
+            dialog.showMessageBox(focusedWindow, options)
+          }
+        }
+      }]
     }, {
-      label: 'Close',
-      accelerator: 'CmdOrCtrl+W',
-      role: 'close'
+      label: 'Window',
+      role: 'window',
+      submenu: [{
+        label: 'Minimize',
+        accelerator: 'CmdOrCtrl+M',
+        role: 'minimize'
+      }, {
+        label: 'Close',
+        accelerator: 'CmdOrCtrl+W',
+        role: 'close'
+      }, {
+        type: 'separator'
+      }, {
+        label: 'Reopen Window',
+        accelerator: 'CmdOrCtrl+Shift+T',
+        enabled: false,
+        click: () => {
+          app.emit('activate')
+        }
+      }]
     }, {
-      type: 'separator'
-    }, {
-      label: 'Reopen Window',
-      accelerator: 'CmdOrCtrl+Shift+T',
-      enabled: false,
-      click: () => {
-        app.emit('activate')
-      }
+      label: 'Help',
+      role: 'help',
+      submenu: [{
+        label: 'Learn More',
+        click: () => {
+          // The shell module provides functions related to desktop integration.
+          // An example of opening a URL in the user's default browser:
+          const { shell } = require('electron');
+          shell.openExternal('http://electron.atom.io')
+        }
+      }]
     }]
-  }, {
-    label: 'Help',
-    role: 'help',
-    submenu: [{
-      label: 'Learn More',
-      click: () => {
-        // The shell module provides functions related to desktop integration.
-        // An example of opening a URL in the user's default browser:
-        const { shell } = require('electron');
-        shell.openExternal('http://electron.atom.io')
-      }
-    }]
-  }]
 }
