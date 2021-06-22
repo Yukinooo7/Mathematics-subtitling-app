@@ -56,8 +56,9 @@ export default function SideBarComponent(url) {
     // console.log(overallCollapse)
     // console.log(collapse)
     useEffect(() => {
-        // console.log(url)
+        console.log(url)
         setFilePath(url)
+        console.log(filePath)
     })
 
 

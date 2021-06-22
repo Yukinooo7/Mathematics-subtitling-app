@@ -12,7 +12,7 @@ import VideoPlayer from '../components/VideoPlayer';
 export default function MainPage(props) {
     const [filePath, setFilePath] = useState("")
     const [hasVideo, setNewVideo] = useState(false)
-    const history = useHistory()
+    // const history = useHistory()
 
 
     ipcRenderer.on('fileSelected', (event, message) => {
@@ -30,10 +30,20 @@ export default function MainPage(props) {
 
         //     console.log(props.location.state)
         // }
-        if (!hasVideo && props.location.state){
-            setFilePath(props.location.state.filePath.url)
-            setNewVideo(true)
+        // window.removeEventListener("goTo", goTo)
+        // console.log("a")
+        let isMounted = true;
+        if( isMounted){
+            if (!hasVideo && props.location.state){
+                setFilePath(props.location.state.filePath.url)
+                setNewVideo(true)
+                ipcRenderer.removeListener('fileSelected', ()=>{});
+                console.log(props.location.state.filePath)
+            }
+
         }
+
+        return() => {isMounted = false}
         // if (filePath != "") {
         //     // console.log(filePath)
         //     console.log("aaaaaaaa")
@@ -51,7 +61,7 @@ export default function MainPage(props) {
             // let filePaths = result.filePaths
             // console.log(result.filePaths)
             setFilePath(result.filePaths)
-            // console.log(filePath)
+            console.log(result.filePaths)
             // console.log(cancel)
         });
 

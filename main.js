@@ -1,10 +1,11 @@
 // Main Process
 // ipcMain用于在渲染进程和主进程之间发送和处理消息
 const { app, BrowserWindow, ipcMain, Notification, Menu, Tray } = require('electron');
+const main = require('electron-reload');
 require('@electron/remote/main').initialize()
 const path = require('path');
 const isDev = !app.isPackaged;
-
+const Store = require('electron-store')
 
 const dockIcon = path.join(__dirname, 'assets', 'images', 'react_app_logo.png');
 const trayIcon = path.join(__dirname, 'assets', 'images', 'react_icon.png');
@@ -17,19 +18,70 @@ let mainWindow;
 
 let isRendererReady = false;
 
-function onVideoFileSelected(filePath) {
+Store.initRenderer();
 
-    if (isRendererReady) {
-        console.log("fileSelected=", playParams)
+const store = new Store();
+// function onVideoFileSelected(filePath) {
 
-        mainWindow.webContents.send('fileSelected', playParams);
-    } else {
-        ipcMain.once("ipcRendererReady", (event, args) => {
-            console.log("fileSelected", playParams)
-            mainWindow.webContents.send('fileSelected', playParams);
-            isRendererReady = true;
-        })
+//     if (isRendererReady) {
+//         console.log("fileSelected=", playParams)
+
+//         mainWindow.webContents.send('fileSelected', playParams);
+//     } else {
+//         ipcMain.once("ipcRendererReady", (event, args) => {
+//             console.log("fileSelected", playParams)
+//             mainWindow.webContents.send('fileSelected', playParams);
+//             isRendererReady = true;
+//         })
+//     }
+// }
+
+function getCurrentTime() {
+    var date = new Date()
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    var seconds = date.getSeconds();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month
     }
+
+    if (strDate >= 0 && strDate <= 9){
+        strDate = "0" + strDate
+    }
+
+    if (seconds >= 0 && seconds <= 9){
+        seconds = "0" + seconds
+    }
+
+
+
+    var currentTime = date.getFullYear() + "-" + month +"-" + strDate + "-" + date.getHours() + ":" + date.getMinutes()
+    + ":"+ seconds;
+
+    return currentTime
+}
+
+
+function addVideosHistory(filePaths) {
+    var file = filePaths[0].split('/')
+    var fileName = file.pop()
+    let openedFiles
+
+    const currentTime = getCurrentTime()
+    // console.log(fileName)
+    // console.log(filePaths[0].split('/')[-1])
+    if (store.has("OpenedFiles")) {
+        let files = store.get('OpenedFiles')
+
+        // openedFiles[fileName] = { date: currentTime, path: filePaths }
+        openedFiles =[...(files || []), { name: [fileName][0] , date: currentTime, path: {url:filePaths} }]
+        // console.log("True")
+    } else {        // console.log("False")
+        // openedFiles = {[fileName]: { date: currentTime, path: filePaths } } 
+        openedFiles = [{name: [fileName][0] ,date: currentTime, path: {url:filePaths} }]
+    }
+    // console.log(openedFiles)
+    store.set({ "OpenedFiles": openedFiles })
 }
 
 function createSplashWindow(filepath) {
@@ -129,15 +181,19 @@ app.whenReady()
 // })
 // console.log("I AM MAIN!")
 
-// ipcMain.on('message1', (event, arg) => {
-//     console.log(arg) // prints "ping"
-//     event.reply('asynchronous-reply', 'pong1')
-// })
+ipcMain.on('OpenedVideo', (event, arg) => {
+    console.log(arg) // prints "ping"
+    // event.reply('asynchronous-reply', 'pong1')
+})
 
 // ipcMain.on('message2', (event, arg) => {
 //     console.log(arg) // prints "ping"
 //     event.returnValue = 'pong2'
 // })
+
+// app.getPath('userData')
+// store.clear()
+
 
 
 
@@ -187,39 +243,18 @@ let app_menu = [
                 }).then((result) => {
                     let cancel = result.canceled
                     let filePaths = result.filePaths
-                    console.log(mainWindow)
+                    // let fileName = ""
+                    // console.log(mainWindow)
+                    // store.set({"OpenedFiles":{fileName: []}})
                     if (!cancel && mainWindow && filePaths.length > 0) {
-                        // console.log(result)
-                        // const videoWindow = createVideoWindow();
-                        // const loadingWindow = createSplashWindow("./pages/loading.html");
-                
-                        // videoWindow.once('ready-to-show', () => {
-                        //     // splash.destroy();
-                        //     // mainApp.show();
-                        //     setTimeout(() => {
-                        //         loadingWindow.destroy();
-                        //         videoWindow.show();
-                        //     }, 1000)
-                        // })
-
-                        // newWin = new BrowserWindow(
-                        //     {
-                        //         width: 100,
-                        //         height: 100,
-                        //         show: false,
-                        //     }
-                        // )
-                        // newWin.loadFile('./pages/splash.html')
-                        // newWin.webContents.on('did-finish-load', () => {
-                            // newWin.webContents.send('message1',filePaths[0])
-                            mainWindow.webContents.send('fileSelected', filePaths[0]);
-                            console.log("I AM MAIN PROCESS")
-                            console.log(filePaths[0])
-                        // })
-
-                        // videoWindow.show()
-                        // newWin.on('close', () => {
-                            // newWin = null
+                        // mainWindow.webContents.on('did-finish-load', () => {
+                        mainWindow.webContents.send('fileSelected', filePaths[0]);
+                        // console.log("I AM MAIN PROCESS")
+                        console.log(filePaths)
+                        console.log(filePaths[0])
+                        addVideosHistory(filePaths)
+                        console.log(store.store)
+                        // console.log(mainWindow.webContents)
                         // })
                     }
                 })

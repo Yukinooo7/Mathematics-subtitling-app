@@ -171,12 +171,12 @@ class VideoPlayer extends React.Component{
     }
 
     componentDidMount() {
-        console.log("Component Did Mount!")
+        // console.log("Component Did Mount!")
     }
 
     componentDidUpdate() {
         if (this.state.seekTo){
-            console.log('Component Did Update!')
+            // console.log('Component Did Update!')
             this.setState({
                 seekTo: false,
             })
@@ -186,7 +186,7 @@ class VideoPlayer extends React.Component{
     }
 
     componentWillUnmount() {
-        console.log('Component Will Unmount!')
+        // console.log('Component Will Unmount!')
     }
 
 
