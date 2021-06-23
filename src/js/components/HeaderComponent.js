@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 
 
 import { Layout} from 'antd';
@@ -18,12 +18,14 @@ export default function HeaderComponent() {
     const[collapse, setCollapse] = useState(false)
 
     const dispatch = useDispatch();
-    const overallCollapse = useSelector(state => state.collapse)
+    const overallCollapse = useSelector(state => state.collapse.collapse)
+    
 
     // console.log(collapse)
 
     const change_sidebar = () => {
         dispatch({type: 'CHANGE_SIDEBAR'})
+        // console.log(overallCollapse)
     }
     
     // console.log(overallCollapse)

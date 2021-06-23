@@ -9,6 +9,15 @@ const { ipcRenderer } = require('electron')
 import VideoPlayer from '../components/VideoPlayer';
 
 
+// var app = document.getElementById('test')
+// console.log(app)
+
+// app.ondrag = function(e) {
+//   console.log(e)
+//   console.log("aaa")
+// }
+
+
 export default function MainPage(props) {
     const [filePath, setFilePath] = useState("")
     const [hasVideo, setNewVideo] = useState(false)
@@ -21,7 +30,7 @@ export default function MainPage(props) {
         // // opened= message
         setFilePath(message)
     })
-        
+
 
     // console.log(props.location.state)
 
@@ -33,17 +42,17 @@ export default function MainPage(props) {
         // window.removeEventListener("goTo", goTo)
         // console.log("a")
         let isMounted = true;
-        if( isMounted){
-            if (!hasVideo && props.location.state){
+        if (isMounted) {
+            if (!hasVideo && props.location.state) {
                 setFilePath(props.location.state.filePath.url)
                 setNewVideo(true)
-                ipcRenderer.removeListener('fileSelected', ()=>{});
+                ipcRenderer.removeListener('fileSelected', () => { });
                 console.log(props.location.state.filePath)
             }
 
         }
 
-        return() => {isMounted = false}
+        return () => { isMounted = false }
         // if (filePath != "") {
         //     // console.log(filePath)
         //     console.log("aaaaaaaa")
@@ -70,7 +79,13 @@ export default function MainPage(props) {
 
     return (
         // <div onClick={goTo}>
-        <div>
+        <div id='test'
+
+            onDrop={(e) => {
+                e.preventDefault();
+                // console.log(e.dataTransfer.files[0].path)
+                setFilePath(e.dataTransfer.files[0].path)
+            }}>
             <Button
                 onClick={goTo}
             >

@@ -1,5 +1,6 @@
 import { createStore, combineReducers } from "redux";
-import collapseReducer from "../reducers/reduces"
+import collapseReducer from "../reducers/reducer_collapse"
+import reducer from "../reducers/index"
 
 export default function configureStore() {
 
@@ -17,9 +18,9 @@ export default function configureStore() {
     //         collapse: collapseReducer
     //     }), []);
 
-    const store = createStore(collapseReducer)
+    const store = createStore(reducer)
     
-    // console.log(store.getState())
+    console.log(store.getState())
     // console.log("fsdsd")
     return store
 }

@@ -111,6 +111,23 @@ import '../styles/VideoPlayer.css'
 
 // }
 
+// var holder = document.getElementById('subtitleApp')
+
+// holder.ondrop = function(e) {
+//     console.log(e)
+//     e.preventDefault();
+//     var file = e.dataTransfer.files[0];
+//     console.log('File you dragged here is', file.path);
+// }
+
+// holder.ondragover = function(e) {
+//     return false
+// }
+
+// holder.ondragleave = holder.ondragend = function(e) {
+//     return false
+// }
+
 class VideoPlayer extends React.Component{
 
     state = {
@@ -183,12 +200,12 @@ class VideoPlayer extends React.Component{
             this.player.seekTo(this.state.playedSeconds)
             console.log(this.player)
         }
+
     }
 
     componentWillUnmount() {
         // console.log('Component Will Unmount!')
     }
-
 
 
     render(){

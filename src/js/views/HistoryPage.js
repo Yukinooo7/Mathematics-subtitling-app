@@ -1,6 +1,7 @@
 import { Card } from 'antd';
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
 const Store = require("electron-store")
 
@@ -10,6 +11,7 @@ let historyData = []
 
 export default function HistoryPage() {
 
+    const dispatch = useDispatch();
 
     if (store.has("OpenedFiles")) {
         // setHistoryData(store.get("OpenedFiles"))
@@ -20,12 +22,14 @@ export default function HistoryPage() {
 
     console.log(historyData[0].path)
 
+    // dispatch({type: 'CHANGE_SIDEBAR'})
+
     return (
         // <h1>I am History Page</h1>
         <div>
             <Card title="Edit History">
                 {historyData.map((item, idx) => (
-                    <Link  key={idx} to={{ pathname: '/', state: { filePath: item.path} }}>
+                    <Link  key={idx} to={{ pathname: '/', state: { filePath: item.path} }} onClick={() => {dispatch({type:"key1"})}}>
                         <Card type="inner" title={item.name}>
                             Last edited: {item.date}
                         </Card>

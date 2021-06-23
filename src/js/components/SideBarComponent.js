@@ -44,11 +44,15 @@ export default function SideBarComponent(url) {
 
 
     const dispatch = useDispatch();
-    const overallCollapse = useSelector(state => state.collapse)
+    const overallCollapse = useSelector(state => state.collapse.collapse)
+    const currentSelectedKey = useSelector(state => state.key.key)
 
     const { height, width } = useWindowDimensions();
     
     const [filePath, setFilePath] = useState(url)
+
+    const [selectedKey, setSelectedKey] = useState("1")
+
     // const [url] = useState('/Users/lingyun/EdinburghPGT/OBS/sample.mp4')
     // const[collapse, setCollapse] = useState(overallCollapse)
     // console.log(url)
@@ -59,6 +63,7 @@ export default function SideBarComponent(url) {
         console.log(url)
         setFilePath(url)
         console.log(filePath)
+        setSelectedKey()
     })
 
 
@@ -68,28 +73,28 @@ export default function SideBarComponent(url) {
                 <SmileOutlined />
             </div>
             {/* <Data /> */}
-            <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
+            <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} selectedKeys={currentSelectedKey}>
                 {/* <Menu.Item key="1" icon={<LeftCircleOutlined />}>
                 <Link to='/MainPage'>
                     Previous Page
                 </Link>
             </Menu.Item> */}
-                <Menu.Item key="1" icon={<HomeOutlined />}>
+                <Menu.Item key="1" icon={<HomeOutlined />} onClick={() => {dispatch({type:"key1"})}}>
                     <Link to={{pathname:'/',state:{filePath: filePath}}}>
                         Home Page
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="2" icon={<EditOutlined />}>
+                <Menu.Item key="2" icon={<EditOutlined />} onClick={() => {dispatch({type:"key2"})}}>
                     <Link to={{pathname:'/EditPage',state:{filePath: filePath}}}>
                         Edit Page
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="3" icon={<HistoryOutlined />}>
+                <Menu.Item key="3" icon={<HistoryOutlined />} onClick={() => {dispatch({type:"key3"})}}>
                     <Link to="/HistoryPage">
                         History
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="4" icon={<SettingOutlined />}>
+                <Menu.Item key="4" icon={<SettingOutlined />} onClick={() => {dispatch({type:"key4"})}}> 
                     <Link to="/SettingPage">
                         Setting
                     </Link>
