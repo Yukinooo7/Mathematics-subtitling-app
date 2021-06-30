@@ -16,6 +16,7 @@
   "author": "Lingyun Chen",
   "license": "ISC",
   "build": {
+    "extraResources": "python_scripts",
     "productName": "Mathematics Subtitle App",
     "appId": "com.lingyun.subtitleApp",
     "files": [
@@ -75,9 +76,11 @@
     "@electron/remote": "^1.2.0",
     "antd": "^4.14.1",
     "babel-loader": "^8.2.2",
+    "better-react-mathjax": "^1.0.2",
     "css-loader": "^5.2.6",
     "electron-reload": "^1.5.0",
     "electron-store": "^8.0.0",
+    "python-shell": "^3.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-player": "^2.9.0",

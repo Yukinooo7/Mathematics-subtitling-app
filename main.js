@@ -1,6 +1,6 @@
 // Main Process
 // ipcMain用于在渲染进程和主进程之间发送和处理消息
-const { app, BrowserWindow, ipcMain, Notification, Menu, Tray } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, Menu, Tray,ipcRenderer } = require('electron');
 const main = require('electron-reload');
 require('@electron/remote/main').initialize()
 const path = require('path');
@@ -9,6 +9,7 @@ const Store = require('electron-store')
 
 const dockIcon = path.join(__dirname, 'assets', 'images', 'react_app_logo.png');
 const trayIcon = path.join(__dirname, 'assets', 'images', 'react_icon.png');
+
 
 
 let tray = null;
@@ -21,11 +22,10 @@ let isRendererReady = false;
 Store.initRenderer();
 
 const store = new Store();
-// function onVideoFileSelected(filePath) {
 
+// function onVideoFileSelected(filePath) {
 //     if (isRendererReady) {
 //         console.log("fileSelected=", playParams)
-
 //         mainWindow.webContents.send('fileSelected', playParams);
 //     } else {
 //         ipcMain.once("ipcRendererReady", (event, args) => {
@@ -55,7 +55,7 @@ function getCurrentTime() {
 
 
 
-    var currentTime = date.getFullYear() + "-" + month +"-" + strDate + "-" + date.getHours() + ":" + date.getMinutes()
+    var currentTime = date.getFullYear() + "-" + month +"-" + strDate + " " + date.getHours() + ":" + date.getMinutes()
     + ":"+ seconds;
 
     return currentTime
@@ -64,11 +64,14 @@ function getCurrentTime() {
 
 function addVideosHistory(filePaths) {
     var file = filePaths[0].split('/')
+    // console.log(filePaths)
+    console.log([filePaths])
     var fileName = file.pop()
     let openedFiles
+    const maxFiles = 4
 
     const currentTime = getCurrentTime()
-    // console.log(fileName)
+    console.log(fileName)
     // console.log(filePaths[0].split('/')[-1])
     if (store.has("OpenedFiles")) {
         let files = store.get('OpenedFiles')
@@ -80,7 +83,12 @@ function addVideosHistory(filePaths) {
         // openedFiles = {[fileName]: { date: currentTime, path: filePaths } } 
         openedFiles = [{name: [fileName][0] ,date: currentTime, path: {url:filePaths} }]
     }
-    // console.log(openedFiles)
+    console.log(openedFiles.length)
+    // openedFiles = openedFiles.reverse()
+    if (openedFiles.length > maxFiles){
+        openedFiles.splice(0, openedFiles.length - maxFiles)
+        console.log(openedFiles)
+    }
     store.set({ "OpenedFiles": openedFiles })
 }
 
@@ -123,8 +131,8 @@ function createVideoWindow() {
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 1200,
-        height: 800,
+        width: 1600,
+        height: 900,
         backgroundColor: '#6e707e',
         show: false,
         webPreferences: {
@@ -194,8 +202,38 @@ ipcMain.on('OpenedVideo', (event, arg) => {
 // app.getPath('userData')
 // store.clear()
 
+ipcMain.on("getStore", (event, message) => {
+    console.log(message)
+    event.reply("getStore",message)
+})
 
+ipcMain.on("removeAllHistory", (event, message) => {
+    console.log("a")
+    store.clear()
+    event.reply('refresh', "a")
+})
 
+ipcMain.on("removeHistory", (event, message) => {
+    // console.log(message)
+    let files = store.get("OpenedFiles")
+    // files.delete(message)
+    // console.log(files.length)
+    // delete files[message]
+    // console.log(files.length)
+    files.splice(message, 1)
+    event.reply('refresh', "a")
+    // console.log(files.length)
+
+    store.set({ "OpenedFiles": files})
+})
+
+ipcMain.on("openNewVideo", (event, message) => {
+    console.log(message)
+
+    addVideosHistory(message)
+
+    mainWindow.webContents.send('fileSelected', message[0]);
+})
 
 
 app.on('window-all-closed', () => {
@@ -238,22 +276,27 @@ let app_menu = [
                 electron_dialog.showOpenDialog({
                     properties: ['openFile'],
                     filters: [
-                        { name: 'Videos', extensions: ['mp4'] }
+                        { name: 'Videos', extensions: ['mp4']},
+                        { name: "Subtitles", extensions: ['*']}
                     ]
                 }).then((result) => {
+                    console.log(result)
                     let cancel = result.canceled
                     let filePaths = result.filePaths
                     // let fileName = ""
                     // console.log(mainWindow)
                     // store.set({"OpenedFiles":{fileName: []}})
+                    console.log(filePaths)
                     if (!cancel && mainWindow && filePaths.length > 0) {
                         // mainWindow.webContents.on('did-finish-load', () => {
                         mainWindow.webContents.send('fileSelected', filePaths[0]);
                         // console.log("I AM MAIN PROCESS")
-                        console.log(filePaths)
-                        console.log(filePaths[0])
+                        // console.log(filePaths)
+                        // console.log(filePaths[0])
                         addVideosHistory(filePaths)
-                        console.log(store.store)
+                        // console.log(store.store)
+
+                        // ipcRenderer.removeListener('fileSelected', () => { });
                         // console.log(mainWindow.webContents)
                         // })
                     }

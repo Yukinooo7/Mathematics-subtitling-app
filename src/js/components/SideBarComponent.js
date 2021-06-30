@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Layout, Menu } from 'antd';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { ipcRenderer } from 'electron';
 
 
 import {
@@ -48,7 +49,7 @@ export default function SideBarComponent(url) {
     const currentSelectedKey = useSelector(state => state.key.key)
 
     const { height, width } = useWindowDimensions();
-    
+
     const [filePath, setFilePath] = useState(url)
 
     const [selectedKey, setSelectedKey] = useState("1")
@@ -60,10 +61,17 @@ export default function SideBarComponent(url) {
     // console.log(overallCollapse)
     // console.log(collapse)
     useEffect(() => {
-        console.log(url)
-        setFilePath(url)
-        console.log(filePath)
-        setSelectedKey()
+        // console.log(url)
+        let isMount = true
+
+        if (isMount) {
+            setFilePath(url)
+            // console.log(filePath)
+            setSelectedKey()
+
+        }
+
+        return () => { isMount = false }
     })
 
 
@@ -79,22 +87,29 @@ export default function SideBarComponent(url) {
                     Previous Page
                 </Link>
             </Menu.Item> */}
-                <Menu.Item key="1" icon={<HomeOutlined />} onClick={() => {dispatch({type:"key1"})}}>
-                    <Link to={{pathname:'/',state:{filePath: filePath}}}>
+                <Menu.Item key="1" icon={<HomeOutlined />} onClick={() => { dispatch({ type: "key1" }) }}>
+                    <Link to={{ pathname: '/', state: { filePath: filePath } }} onClick={() => {
+                        if (filePath.url != ""){
+                            // console.log(filePath)
+                            dispatch({ type: "SHOW_VIDEO" })
+                            ipcRenderer.send("getStore",filePath.url)
+
+                        }
+                    }}>
                         Home Page
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="2" icon={<EditOutlined />} onClick={() => {dispatch({type:"key2"})}}>
+                {/* <Menu.Item key="2" icon={<EditOutlined />} onClick={() => {dispatch({type:"key2"})}}>
                     <Link to={{pathname:'/EditPage',state:{filePath: filePath}}}>
                         Edit Page
                     </Link>
-                </Menu.Item>
-                <Menu.Item key="3" icon={<HistoryOutlined />} onClick={() => {dispatch({type:"key3"})}}>
+                </Menu.Item> */}
+                <Menu.Item key="2" icon={<HistoryOutlined />} onClick={() => { dispatch({ type: "key2" }) }}>
                     <Link to="/HistoryPage">
                         History
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="4" icon={<SettingOutlined />} onClick={() => {dispatch({type:"key4"})}}> 
+                <Menu.Item key="3" icon={<SettingOutlined />} onClick={() => { dispatch({ type: "key3" }) }}>
                     <Link to="/SettingPage">
                         Setting
                     </Link>

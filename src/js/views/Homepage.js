@@ -24,17 +24,17 @@ const { Content, Footer } = Layout;
 
 var opened = "";
 // function sendMessage() {
-    console.log(ipcRenderer.sendSync('message2', 'ping2')) // prints "pong"
+// console.log(ipcRenderer.sendSync('message2', 'ping2')) // prints "pong"
 
-    ipcRenderer.on('asynchronous-reply', (event, arg) => {
-        console.log(arg) // prints "pong"
-    })
-    ipcRenderer.send('message1', 'ping1')
+// ipcRenderer.on('asynchronous-reply', (event, arg) => {
+//     console.log(arg) // prints "pong"
+// })
+// ipcRenderer.send('message1', 'ping1')
 
-    ipcRenderer.on('message1', (event, arg) => {
-        console.log(arg)
-        // event.reply('me')
-    })
+// ipcRenderer.on('message1', (event, arg) => {
+//     console.log(arg)
+//     // event.reply('me')
+// })
 // }
 
 
@@ -47,14 +47,22 @@ var opened = "";
 export default function HomePage() {
     const [filePath, setFilePath] = useState('')
     // const openedVideo = ""
-    ipcRenderer.on('fileSelected', (event, message) => {
-        // console.log(message)
-        // // console.log(getCurrentWindow())
-        // // opened= message
-        setFilePath(message)
-        
+
+    useEffect(() => {
+        const processData = (event, message) => {
+            setFilePath(message)
+        }
+
+        ipcRenderer.on('fileSelected', processData)
+
+        console.log(filePath)
+
+        return () => {
+
+            ipcRenderer.removeListener('fileSelected', processData)
+        }
+
     })
-    // console.log(filePath)
 
     return (
         // <Provider store={store}>
