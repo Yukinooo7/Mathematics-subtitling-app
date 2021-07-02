@@ -1,6 +1,6 @@
 // Main Process
 // ipcMain用于在渲染进程和主进程之间发送和处理消息
-const { app, BrowserWindow, ipcMain, Notification, Menu, Tray,ipcRenderer } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, Menu, Tray, ipcRenderer } = require('electron');
 const main = require('electron-reload');
 require('@electron/remote/main').initialize()
 const path = require('path');
@@ -45,18 +45,18 @@ function getCurrentTime() {
         month = "0" + month
     }
 
-    if (strDate >= 0 && strDate <= 9){
+    if (strDate >= 0 && strDate <= 9) {
         strDate = "0" + strDate
     }
 
-    if (seconds >= 0 && seconds <= 9){
+    if (seconds >= 0 && seconds <= 9) {
         seconds = "0" + seconds
     }
 
 
 
-    var currentTime = date.getFullYear() + "-" + month +"-" + strDate + " " + date.getHours() + ":" + date.getMinutes()
-    + ":"+ seconds;
+    var currentTime = date.getFullYear() + "-" + month + "-" + strDate + " " + date.getHours() + ":" + date.getMinutes()
+        + ":" + seconds;
 
     return currentTime
 }
@@ -65,29 +65,29 @@ function getCurrentTime() {
 function addVideosHistory(filePaths) {
     var file = filePaths[0].split('/')
     // console.log(filePaths)
-    console.log([filePaths])
+    // console.log([filePaths])
     var fileName = file.pop()
     let openedFiles
     const maxFiles = 4
 
     const currentTime = getCurrentTime()
-    console.log(fileName)
+    // console.log(fileName)
     // console.log(filePaths[0].split('/')[-1])
     if (store.has("OpenedFiles")) {
         let files = store.get('OpenedFiles')
 
         // openedFiles[fileName] = { date: currentTime, path: filePaths }
-        openedFiles =[...(files || []), { name: [fileName][0] , date: currentTime, path: {url:filePaths} }]
+        openedFiles = [...(files || []), { name: [fileName][0], date: currentTime, path: { url: filePaths } }]
         // console.log("True")
     } else {        // console.log("False")
         // openedFiles = {[fileName]: { date: currentTime, path: filePaths } } 
-        openedFiles = [{name: [fileName][0] ,date: currentTime, path: {url:filePaths} }]
+        openedFiles = [{ name: [fileName][0], date: currentTime, path: { url: filePaths } }]
     }
-    console.log(openedFiles.length)
+    // console.log(openedFiles.length)
     // openedFiles = openedFiles.reverse()
-    if (openedFiles.length > maxFiles){
+    if (openedFiles.length > maxFiles) {
         openedFiles.splice(0, openedFiles.length - maxFiles)
-        console.log(openedFiles)
+        // console.log(openedFiles)
     }
     store.set({ "OpenedFiles": openedFiles })
 }
@@ -204,7 +204,7 @@ ipcMain.on('OpenedVideo', (event, arg) => {
 
 ipcMain.on("getStore", (event, message) => {
     console.log(message)
-    event.reply("getStore",message)
+    event.reply("getStore", message)
 })
 
 ipcMain.on("removeAllHistory", (event, message) => {
@@ -224,15 +224,21 @@ ipcMain.on("removeHistory", (event, message) => {
     event.reply('refresh', "a")
     // console.log(files.length)
 
-    store.set({ "OpenedFiles": files})
+    store.set({ "OpenedFiles": files })
 })
 
 ipcMain.on("openNewVideo", (event, message) => {
-    console.log(message)
+    // console.log(message)
 
     addVideosHistory(message)
 
     mainWindow.webContents.send('fileSelected', message[0]);
+})
+
+ipcMain.on('CurrentFile', (event, message) => {
+    console.log("Current FIle:")
+    console.log(message)
+    event.reply("CurrentFile", message)
 })
 
 
@@ -269,15 +275,15 @@ let app_menu = [
     }, {
         label: 'File',
         submenu: [{
-            label: 'Open',
+            label: 'Open a video',
             accelerator: 'CmdOrCtrl+O',
             click: () => {
                 var electron_dialog = require('electron').dialog
                 electron_dialog.showOpenDialog({
                     properties: ['openFile'],
                     filters: [
-                        { name: 'Videos', extensions: ['mp4']},
-                        { name: "Subtitles", extensions: ['*']}
+                        { name: 'Videos', extensions: ['mp4'] },
+                        { name: "Subtitles", extensions: ['*'] }
                     ]
                 }).then((result) => {
                     console.log(result)
@@ -302,7 +308,20 @@ let app_menu = [
                     }
                 })
             }
-        }]
+        },{
+            label: "Save edited subtitle file",
+            accelerator: "CmdOrCtrl+S",
+            click: ()=> {
+                mainWindow.webContents.send("SaveEditSubtitle")
+            }
+        },{
+            label: "Reset Subtitle",
+            accelerator: "CmdOrCtrl+G",
+            click: ()=> {
+                mainWindow.webContents.send("ResetEditSubtitle")
+            }
+        }
+        ]
 
 
     }, {

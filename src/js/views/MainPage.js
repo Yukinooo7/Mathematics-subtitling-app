@@ -105,7 +105,7 @@ export default function MainPage(props) {
             let cancel = result.canceled
             // setNewVideo(true)
             // let filePaths = result.filePaths
-            // console.log(result.filePaths)
+            console.log(result)
             // setFilePath(result.filePaths)
             // console.log(result.filePaths)
             ipcRenderer.send("openNewVideo", result.filePaths)

@@ -55,9 +55,10 @@ export default function HistoryPage() {
             <Card title="Edit History" extra={<Button onClick={() => { removeAllHistory() }}>Clear</Button>}>
                 {historyData.map((item, idx) => (
                     <Card key={idx} type="inner" title={item.name} extra={<Button onClick={() => { removeHistory(idx) }}>Delete</Button>}>
-                        <Link to={{ pathname: '/', state: { filePath: item.path } }} onClick={() => {
+                        <Link to={{ pathname: '/', state: { filePath: item.path, videoName: item.name, editTime: item.date } }} onClick={() => {
                             dispatch({ type: "key1" })
                             dispatch({ type: "SHOW_VIDEO" })
+                            ipcRenderer.send('CurrentFile', item)
                         }} >
                             Last edited: {item.date}
                         </Link>

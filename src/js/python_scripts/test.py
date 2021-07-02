@@ -8,7 +8,8 @@ import sys
 #     return sys.argv[1]
 
 # saySth()
-
+print(sys.argv)
 f = open(sys.argv[1], 'r')
+# print(f)
 for line in f:
     print(line)

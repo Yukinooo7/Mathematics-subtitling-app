@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+</script>
+<script type="text/javascript"      src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML">
+</script>
+<style>
+* {box-sizing: border-box;}
+body {font-family: Arial, sans-serif;}
+#background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('white.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100%;
+  opacity: 0.01;
+  filter:alpha(opacity=1);
+}
+.mySlides {display: none;}
+img {vertical-align: middle;}
+
+/* Slideshow container */
+.slideshow-container {
+  max-width: 800px;
+  position: relative;
+  margin: auto;
+}
+
+/* Caption text */
+.text {
+  color: #ffffff;
+  background-color: rgba(222,222,222,0.01);
+  font-size: 18px;
+  padding: 8px 150px;
+  margin: auto;
+  width: 100%;
+  position: absolute;
+  top: 5px;
+  text-align: center;
+}
+ .text p {
+  background-color: rgba(11,11,11,0.5);
+  margin: 4px;
+  padding: 4px;
+  vertical-align: middle;
+}
+
+/* Fading animation */
+.fade {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 0.5s;
+  animation-name: fade;
+  animation-duration: 0.5s;
+}
+
+@-webkit-keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+/* On smaller screens, decrease text size */
+@media only screen and (max-width: 300px) {
+  .text {font-size: 11px}
+}
+</style>
+</head>
+<body>
+<div id="background"></div>
+
+<div class="slideshow-container">
+
+
+<div class="mySlides fade">
+  <div class="text"><p>StatQuest breaks it down into bite-sized <br> pieces hooray</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Hello, I'm Josh stormer and welcome <br> to stat quest in this StatQuest</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We're going to go through principle comp1nt analysis PCA \( 1 \) <br> step at \( a \) time using singular value decomposition</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>SVD</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>You'll learn about what PCA does</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>How it does it and how <br> to use it to get deeper insight into your data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Let's start with \( a \) simple dataset</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We've measured the transcription of \( 2 \) <br> genes gene \( 1 \) and gene \( 2 \) in \( 6 \) different mice</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Note if you're not into mice <br> and genes</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>think of the mice as individual <br> samples and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The genes as variables that we <br> measure for each sample</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>For example the samples could be <br> students in high school and the variables could be test scores in math and reading</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Or the samples could be businesses, <br> and the variables could be market capitalization and the number of employees</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Ok now we're back to mice and genes because I'm \( a \) <br> geneticist and \( I \) work in \( a \) genetics department if</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We only measure \( 1 \) <br> gene. We can plot the data on \( a \) number line</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>mice \( 1 2 \) <br> &amp; \( 3 \) have relatively high values and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>mice \( 4 5 \) <br> &amp; \( 6 \) have relatively low values</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Even though it's \( a \) <br> simple graph it shows us that mice \( 1 2 \) &amp; \( 3 \) are more similar to each other than they are to</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>mice \( 4 5 \) &amp; \( 6 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>If we measured \( 2 \) <br> genes then we can plot the data on \( a \) 2-dimensional XY graph</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Gene \( 1 \) <br> is the x-axis and spans \( 1 \) of the \( 2 \) dimensions in this graph</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Gene \( - \) <br> is the y-axis and spans the other dimension</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>we can see that mice \( 1 2 \) <br> &amp; \( 3 \) cluster on the right side and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>mice \( 4 5 \) <br> &amp; \( 6 \) cluster on the lower left-hand side</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>if we measured three genes we <br> would add another axis to the graph and make it look 3d ie</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>three dimensional</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The smaller dots have larger values <br> for gene three and are further away</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The larger dots have smaller values <br> for gene three and are closer</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>If we measured for jeans however <br> we can no longer plot the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>for jeans require four dimensions</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>All</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So we're going to talk about <br> how PCA can take four or more Jean measurements and thus</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>four or more dimensions of data and make \( a 2 \) <br> dimensional PCA plot</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This plot will show us that <br> similar mice cluster together</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We'll also talk about how PCA <br> can tell us which gene or variable is the most valuable for clustering the data?</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>For example PCA might tell us that gene \( 3 \) <br> is responsible for separating samples along the \( x \) axis</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Lastly, we'll talk about how PCA <br> can tell us how accurate the 2d graph is?</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>To understand what PCA does and how it works let's go back to the dataset that only had \( 2 \) <br> genes</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We'll start by plotting the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then we'll calculate the average measurement for gene \( 1 \) <br> and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>the average measurement for gene \( 2 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>With the average values we can <br> calculate the center of the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>From this point on we'll focus <br> on what happens in the graph we no longer need the original data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Now we'll shift the data so <br> that the center is on top of the origin in the graph</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Note shifting the data did not <br> change how the data points are positi1d relative to each other</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>this point is still the highest \( 1 \) <br> and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This is still the rightmost point</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Etc</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Now that the data are centered <br> on the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We can try to fit \( a \) <br> line to it to do this</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We start by drawing \( a \) <br> random line that goes through the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then we rotate the line until <br> it fits the data as well as it can given that it has to go through the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Ultimately this line fits best</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>But I'm getting ahead of myself first we need to talk about how PCA decides if \( a \) <br> fit is good or not</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So let's go back to the <br> original random line that goes through the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>To quantify how good this line <br> fits the data PCA projects the data onto it</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>And then it can either measure <br> the distances from the data to the line and try to find the line that minimizes those distances</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Or it. Can try to find <br> the line that maximizes the distances from the projected points to the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>If those options don't seem equivalent <br> to you</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We can build intuition by looking <br> at how these distances shrink when the line fits better</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>While these distances get larger when <br> the line fits better</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Now to understand what is going on in \( a \) <br> mathematical way, let's just consider \( 1 \) data point</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This point is fixed and so <br> is its distance from the origin in</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Other words the distance from the <br> point to the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Doesn't change when the red dotted <br> line rotates</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>When we project the point onto <br> the line</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We get \( a \) <br> right angle between the black dotted line and the red dotted line</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>that means that if we label the sides like this \( a \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>\( b \) and \( c \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then we can use the Pythagorean theorem to show how \( B \) <br> and \( C \) are inversely related</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Since \( a \) and thus \( a \) ^{2} doesn't change</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>if \( B \) gets bigger</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>then \( C \) must get smaller</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Likewise if \( C \) <br> gets bigger, then \( B \) must get smaller</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Thus PCA can either minimize the <br> distance to the line or</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Maximize the distance from the projected <br> point to the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The reason I'm making such \( a \) <br> fuss about this is that</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Intuitively, it makes sense to minimize \( B. \) <br> And the distance from the point to the line</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>But it's actually easier to calculate \( C \) <br> the distance from the projected point to the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>so PCA finds the best fitting <br> line by</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Maximizing the sum of the ^{2} <br> distances from the projected points to the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So for this line</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>PCA projects the data onto it <br> and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then measures the distance from this <br> point to the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Let's call it \( d \) sub1</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Note I'm going to keep track <br> of the distance as we measure up here and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then PCA measures the distance from this point to the origin. We'll call that \( D 2 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then it measures d3</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>d4</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>d5 and d6</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Here are all six distances that <br> we measured</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The next thing we do is <br> Square all of them</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The distances are ^{2} so that \( - \) <br> values don't cancel out positive values</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then we sum up all these ^{2} distances and that \( = \) <br> the sum of the ^{2} distances</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>For short. We'll call this SS <br> distances or sum of ^{2} distances</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Now we rotate the line</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>project the data onto the line <br> and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then sum up the ^{2} distances <br> from the projected points to the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>And we repeat until we end <br> up with the line with the largest sum of square</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>distances between the projected points and <br> the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Ultimately we end up with this <br> line it has the largest sum of ^{2} distances</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This line is called principal comp1nt \( 1 \) <br> or PC \( 1 \) for short</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>PC \( 1 \) has \( a \) slope of</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>0.25 in</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Other words for every four units that we go out along the gene \( 1 \) <br> axis</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We go up \( 1 \) <br> unit along the gene to access</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>That means that the data are mostly spread out along the gene \( 1 \) <br> axis and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Only \( a \) <br> little bit spread out along the gene to access</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>One way to think about PC \( 1 \) <br> is in terms of \( a \) cocktail recipe</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>to make PC \( 1 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>mix four parts gene \( 1 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>with \( 1 \) part gene to</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Pour over ice and serve</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The ratio of gene \( 1 - \) gene \( - \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Tells you that gene \( 1 \) <br> is more important when it comes to describing how the data are spread out</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Oh, No terminology alert</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>mathematicians call this cocktail recipe \( a \) <br> linear combination of genes \( 1 \) &amp; \( 2 I \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>mention this because when some1 says PC \( 1 \) <br> is \( a \) linear combination of variables</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This is what they're talking about</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>It's no big deal</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The recipe for PC \( 1 \) <br> going over \( 4 \) and up \( 1 \) gets us to this point</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We can solve for the length of the red line using the Pythagorean theorem the old \( a \) <br> ^{2}</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>\( = B \) ^{2}</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>\( + C \) ^{2}</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Plugging in the numbers gives us \( a = \) <br> four point \( 1 2 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So the length of the red line is four point \( 1 2 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>When you do pca with SVD the recipe for PC \( 1 \) <br> is scaled so that this length \( = 1 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>All we have to do to scale the triangle so that the red line is \( 1 \) <br> unit long is to divide each side by</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>four point \( 1 2 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>For those of you keeping score</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Here's the math worked out that shows that all we need to do is divide all three sides by four point \( 1 2 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Here are the scaled values</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>the new values change our recipe</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>But the ratio is the same we still use four \( * \) <br> as much gene \( 1 \) as gene \( 2 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So now we are back to <br> looking at the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>the best fitting line and the <br> unit vector that we just calculated oh</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>No another terminology alert this \( 1 \) <br> unit long vector</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>consisting of</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>0.97 parts gene \( 1 \) and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>0.24 \( 2 \) <br> parts gene \( 2 \) is called the singular vector or the eigenvector for PC \( 1 \) and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>the proportions of each gene are <br> called loading scores</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Also while I'm at it</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>pca calls the sums of squares <br> of the distances</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>for the best fit line the eigenvalue for pc \( 1 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>In the square root of the eigenvalue for pc. One is called the singular value for PC \( 1 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>BAM that's \( a \) lot of terminology</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Now that we've got pc1 all <br> figured out, let's work on PC to</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Because this is only \( a \) 2-dimensional graph</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>PC \( 2 \) <br> is simply the line through the origin that is perpendicular to PC \( 1 \) without any further</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>optimization that has to be d1</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>And this means that the recipe for PC \( 2 \) <br> is \( - 1 \) parts gene \( 1 \) to \( 4 \) parts. Gene \( 2 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>If we scale everything so that we get \( a \) <br> unit vector the recipe is</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>\( - \) <br> zero point \( 2 \) for \( 2 \) parts gene \( 1 \) and zero point nine seven parts gene \( - \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>this is the singular vector for PC \( - \) <br> or the eigenvector for PC \( - \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>These are the loading scores for <br> PC to</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>they tell us that in terms of how the values are projected onto PC \( - \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Gene \( - \) <br> is four \( * \) as important as gene \( 1 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Lastly the eigenvalue for pc. \( - \) <br> is the sum of squares of the distances between the projected points and the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Hooray we've worked out pc1 &amp; pc2</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>To draw the final PCA plot we simply rotate everything so that PC \( 1 \) <br> is horizontal</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then we use the projected points <br> to find where the samples go in the PCA plot</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>For example these projected points correspond \( a \) <br> sample six</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So sample six goes here</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>sample \( 2 \) goes here and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Sample \( 1 \) goes here etc</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Double bam that's how PCA is <br> d1 using singular value decomposition</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Okay \( 1 \) <br> last thing before we dive into \( a \) slightly more complicated example</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Remember the eigenvalues</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We got those by projecting the <br> data onto the principal comp1nts</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Measuring the distances to the origin <br> then squaring and adding them together</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We can convert them into variation around the origin by dividing by the sample size \( - 1 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>for the sake of this example</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>imagine that the variation for pc1 \( = \) <br> 15 and the variation for pc2 \( = 3 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>that means that the total variation around both pcs is 15 \( + 3 = \) <br> 18 and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>That means PC \( 1 \) <br> accounts for 15 divided by 18</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>\( = \) <br> zero point \( 8 3 \) or 83 percent of the total variation around the PCs</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Pc2 accounts for 3/18 \( = \) <br> 17% of the total variation around the PCs oh</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>no another terminology alert \( a \) <br> scree plot is \( a \) graphical representation of the percentages of</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>variation that each PC accounts for</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We'll talk more about scree plot Slater</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>BAM</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Okay now let's quickly go through \( a \) <br> slightly more complicated example</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>PC \( a \) <br> with three variables in this case that means three genes is pretty much the same as \( 2 \) variables</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>You Center the data?</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>You then find the best fitting <br> line that goes through the origin</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Just like before the best fitting line is PC \( 1 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>But the recipe for pc1 now <br> has three ingredients in</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This case Jean \( 3 \) <br> is the most important ingredient for pc1</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>You then find pc2 the next <br> best fitting line</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Given that it goes through the origin and is perpendicular to PC \( 1 \) <br></p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Here's the recipe for pc2</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>In this case gene \( 1 \) <br> is the most important ingredient for PC to</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Lastly we find</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>PC three the best fitting line <br> that goes through the origin and is perpendicular pc1 &amp; pc2</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>If we had more genes we <br> just keep on finding more and more principal comp1nts by adding</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>perpendicular lines and rotating them</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>in</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>theory, there is \( 1 \) <br> per gene or variable but in practice the number of PCs is either the number of variables or</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>the number of samples whichever is <br> smaller</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>If this is confusing don't sweat it</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>It's not super important, and I'm going to make \( a \) <br> separate video on this topic in the next week</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Once you have all the principal <br> comp1nts figured out you can use the eigenvalues ie the sums of squares of the distances</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>to determine the proportion of variation <br> that each PC accounts for in</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This case PC \( 1 \) <br> accounts for 79 percent of the variation</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>PC to accounts for fifteen percent <br> of the variation and</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>PC three accounts for six percent <br> of the variation</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Here's the scree plot</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Pc1 &amp; pc2 account for the <br> vast majority of the variation</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>That means that \( a \) <br> 2d graph using just pc1 &amp; pc2</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Would be \( a \) <br> good approximation of this 3d graph since it would account for</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>94% of the variation in the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>To convert the 3d graph into \( a \) <br> 2-dimensional PCA graph</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We just strip away everything, but <br> the data and pc1 &amp; pc2</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then project the samples onto pc1 &amp;</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Pc2</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then we rotate so that PC \( 1 \) <br> is horizontal in PC \( 2 \) is vertical this just makes it easier to look at</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Since these projected points correspond \( a \) <br> sample for</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>This is where sample four goes <br> on our new PCA plot</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Etc etc etc</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Double bail</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>To review we started with an <br> awkward 3d graph that was kind of hard to read</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Then we calculated the principal comp1nts</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>then with the eigenvalues for pc1 <br> &amp; pc2</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We determined that \( a \) <br> 2d graph would still be very informative</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>We determined that \( a \) <br> 2d graph would still be very informative</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Lastly we used pc1 &amp; pc2 to draw \( 2 \) <br> dimensional graph with the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>If we measured for jeans per mouse we would not be able to draw \( a \) <br> four dimensional graph of the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>wall</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>But that doesn't stop us from <br> doing the pca math</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Which doesn't care if we can draw \( a \) <br> picture of it or not and looking at the screen in?</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>this case</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Pc1 &amp; pc2 account for 90% of the variation so we can just use those to draw \( 2 \) <br> dimensional pca graph</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So we project the samples onto the first \( 2 \) <br> pcs</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>These \( 2 \) <br> projected points correspond to sample \( 2 \)</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>So sample \( 2 \) goes here</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>BAM</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Note if the scree plot looked like this where PC \( 3 \) <br> and PC four account for \( a \) substantial</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Amount of variation then just using the first \( 2 \) <br> pcs would not create \( a \) very accurate</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>representation of the data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Wha-wha</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>However even \( a \) <br> noisy PCA plot like this can be used to identify clusters of data</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>These samples are still more similar <br> to each other than they are to the other samples</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Little bam</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>Hooray we've made it to the <br> end of another exciting stat quest if you liked this stack quest and want to see more please subscribe</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>And if you want to support stack quest please consider buying \( 1 \) <br> or \( 2 \) of my original songs</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>The link to my Bandcamp page <br> is in the lower right corner and in the description below</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p>alright until next time quest on</p></div>
+</div>
+
+<div class="mySlides fade">
+  <div class="text"><p></p></div>
+</div>
+
+
+</div>
+<br>
+
+<script>
+var slideIndex = 0;
+showSlides();
+
+function showSlides() {
+  var time = [0, 5820, 0, 7559, 0, 6900, 0, 2381, 0, 2000, 0, 4590, 0, 3360, 0, 7739, 0, 3810, 0, 3751, 0, 4230, 0, 7829, 0, 7229, 0, 7740, 0, 5161, 0, 5520, 0, 5069, 0, 8721, 0, 2000, 0, 8380, 0, 6870, 0, 6060, 0, 5310, 0, 5069, 0, 7891, 0, 2551, 0, 4979, 0, 5970, 0, 6451, 0, 3330, 0, 3490, 0, 6019, 0, 5371, 0, 5189, 0, 9511, 0, 8700, 0, 8009, 0, 8881, 0, 3479, 0, 4680, 0, 3151, 0, 5399, 0, 7771, 0, 7208, 0, 7771, 0, 3990, 0, 3300, 0, 2081, 0, 2149, 0, 3901, 0, 4739, 0, 9121, 0, 4560, 0, 8990, 0, 5940, 0, 8040, 0, 9270, 0, 8149, 0, 5019, 0, 6871, 0, 5400, 0, 9590, 0, 6420, 0, 4110, 0, 3780, 0, 4431, 0, 5429, 0, 4920, 0, 3721, 0, 7350, 0, 6540, 0, 3089, 0, 3361, 0, 6899, 0, 7080, 0, 4831, 0, 5159, 0, 6331, 0, 7530, 0, 3420, 0, 5489, 0, 3550, 0, 3750, 0, 4380, 0, 2671, 0, 5970, 0, 6959, 0, 2700, 0, 2410, 0, 2000, 0, 5130, 0, 3779, 0, 6931, 0, 9090, 0, 6960, 0, 3631, 0, 3059, 0, 6060, 0, 6921, 0, 3839, 0, 8100, 0, 6720, 0, 3781, 0, 2789, 0, 5791, 0, 4739, 0, 6570, 0, 4951, 0, 6449, 0, 3211, 0, 2759, 0, 2971, 0, 3570, 0, 4630, 0, 6269, 0, 3900, 0, 7530, 0, 7019, 0, 2761, 0, 2370, 0, 6870, 0, 8040, 0, 2681, 0, 2000, 0, 4499, 0, 4500, 0, 8820, 0, 7649, 0, 2102, 0, 3310, 0, 6959, 0, 3631, 0, 3090, 0, 7289, 0, 4081, 0, 5519, 0, 6330, 0, 2321, 0, 2000, 0, 8280, 0, 4920, 0, 4060, 0, 2700, 0, 4500, 0, 8209, 0, 3901, 0, 6789, 0, 3841, 0, 7170, 0, 2460, 0, 8379, 0, 6580, 0, 7111, 0, 6240, 0, 4309, 0, 6011, 0, 4139, 0, 9601, 0, 5269, 0, 9540, 0, 6960, 0, 6301, 0, 3990, 0, 3360, 0, 4259, 0, 6991, 0, 7049, 0, 4431, 0, 5129, 0, 5820, 0, 7560, 0, 3390, 0, 6990, 0, 8901, 0, 5610, 0, 6270, 0, 10200, 0, 8670, 0, 2970, 0, 3629, 0, 3271, 0, 4769, 0, 9431, 0, 3030, 0, 3840, 0, 5279, 0, 5701, 0, 6330, 0, 5010, 0, 4590, 0, 4379, 0, 6901, 0, 3029, 0, 6630, 0, 8160, 0, 2251, 0, 1900, 0, 7940, 0, 2519, 0, 3900, 0, 5461, 0, 9349, 0, 5130, 0, 5850, 0, 4710, 0, 3991, 0, 3780, 0, 6150, 0, 5910, 0, 5520, 0, 2760, 0, 6359, 0, 4740, 0, 5130, 0, 3600, 0, 7530, 0, 5291, 0, 4529, 0, 4110, 0, 5251, 0, 6029, 0, 3661, 0, 4740, 0, 4439, 0, 0, 0, 7471, 0, 7980, 0, 3400, 0, 3019, 0, 5431, 0, 2590, 0, 7609, 0, 4981, 0, 4260, 0, 3569, 0, 3031, 0, 7289, 0, 6601, 0, 2700, 0, 2970, 0, 6599, 0, 6091, 0, 3720, 0, 7920, 0, 6059, 0, 5821, 0, 3899];
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+  if(slideIndex%2 == 1){
+      slides[(slideIndex-1)/2].style.display = "block";
+    }
+    setTimeout(showSlides, time[slideIndex]);
+    slideIndex++;
+}
+</script>
+
+</body>
+</html>
