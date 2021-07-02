@@ -17,6 +17,21 @@
     background-color: aliceblue;
 }
 
+.currentSubtitle {
+    position: absolute;
+    top: 40%;
+    z-index: 10;
+    background-color: (0,0,0,0.2);
+    /* opacity: 0.2; */
+    font-weight: bold;
+    /* color: #000; */
+    color: black;
+    width: 50%;
+    word-wrap: break-word;
+    text-align: center;
+    
+}
+
 .subtitle-area {
     position: absolute;
     top: 66%;
@@ -66,6 +81,14 @@
     /* display: block; */
 }
 
+#latex_input_title {
+    /* text-align: center; */
+    /* cursor: pointer; */
+    margin-left: 5%;
+    font-weight: bold;
+    padding: 1px;
+}
+
 table {
     border-spacing: 0;
     border-collapse: collapse;
@@ -111,6 +134,20 @@ td {
     border-radius: 1%;
 }
 
+.latex-show-area {
+    /* margin-top: 5%; */
+    margin-left: 5%;
+    word-break: keep-all;
+    white-space: 'pre-wrap';
+}
+
+.input-math-area {
+    /* margin-top: 5%; */
+    margin-left: 5%;
+    resize: none;
+}
+
+
 #open_subtitle {
     /* top: 58%; */
     /* left: 0; */
@@ -139,8 +176,7 @@ td {
         margin-right: 15px;
         width: 120px;
         height: 30px;
-        word-break: 'break-all';
-        white-space: 'pre-wrap';
+        word-wrap: break-word;
         padding: 4px;
         border: none;
         outline: none;

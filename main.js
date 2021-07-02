@@ -203,6 +203,7 @@ ipcMain.on('OpenedVideo', (event, arg) => {
 // store.clear()
 
 ipcMain.on("getStore", (event, message) => {
+    console.log("GET STORE!")
     console.log(message)
     event.reply("getStore", message)
 })
@@ -228,7 +229,7 @@ ipcMain.on("removeHistory", (event, message) => {
 })
 
 ipcMain.on("openNewVideo", (event, message) => {
-    // console.log(message)
+    console.log(message)
 
     addVideosHistory(message)
 
@@ -308,22 +309,40 @@ let app_menu = [
                     }
                 })
             }
-        },{
+        }, {
             label: "Save edited subtitle file",
             accelerator: "CmdOrCtrl+S",
-            click: ()=> {
+            click: () => {
                 mainWindow.webContents.send("SaveEditSubtitle")
             }
-        },{
+        }, {
             label: "Reset Subtitle",
             accelerator: "CmdOrCtrl+G",
-            click: ()=> {
+            click: () => {
                 mainWindow.webContents.send("ResetEditSubtitle")
             }
         }
         ]
 
 
+    }, {
+        label: 'Video',
+        submenu: [
+            {
+                label: "Play/Pause Video",
+                accelerator: "CmdOrCtrl+P",
+                click: () => {
+                    // console.log("SPACE!")
+                    mainWindow.webContents.send("PlayPauseVideo")
+                }
+            }, {
+                label: "Mute Video",
+                accelerator: "CmdOrCtrl+M",
+                click: () => {
+                    mainWindow.webContents.send("MuteVideo")
+                }
+            }
+        ]
     }, {
         label: 'Edit',
         submenu: [

@@ -88,7 +88,7 @@ export default function SideBarComponent(url) {
                 </Link>
             </Menu.Item> */}
                 <Menu.Item key="1" icon={<HomeOutlined />} onClick={() => { dispatch({ type: "key1" }) }}>
-                    <Link to={{ pathname: '/', state: { filePath: filePath } }} onClick={() => {
+                    <Link to={{ pathname: '/' }} onClick={() => {
                         if (filePath.url != ""){
                             // console.log(filePath)
                             dispatch({ type: "SHOW_VIDEO" })

@@ -44,6 +44,7 @@ export default function HistoryPage() {
         ipcRenderer.send("removeAllHistory", "Clear")
     }
 
+    console.log(ipcRenderer.removeListener('', () => { }));
     // dispatch({type: 'CHANGE_SIDEBAR'})
     // useEffect(() => {
     //     console.log()
@@ -59,6 +60,7 @@ export default function HistoryPage() {
                             dispatch({ type: "key1" })
                             dispatch({ type: "SHOW_VIDEO" })
                             ipcRenderer.send('CurrentFile', item)
+                            ipcRenderer.send("openNewVideo", item.path.url)
                         }} >
                             Last edited: {item.date}
                         </Link>

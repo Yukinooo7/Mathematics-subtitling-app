@@ -28,7 +28,7 @@ export default function MainPage(props) {
     // console.log(ipcRenderer.removeListener('fileSelected', () => { }))
 
     const hasVideo = useSelector(state => state.hasVideo.hasVideo)
-
+    // console.log(ipcRenderer.removeListener('', () => { }));
     const processData = (event, message) => {
         // console.log("Process Data")
         // if (props.location.state) {
@@ -42,11 +42,10 @@ export default function MainPage(props) {
         //     }
         // }
     }
-    ipcRenderer.once("getStore", processData)
     useEffect(() => {
         // console.log(Date())
         isMounted = true;
-        ipcRenderer.removeListener('fileSelected', processData)
+        // ipcRenderer.removeListener('fileSelected', processData)
         // when use siderbar to open main page
         if (props.location.state) {
             // console.log("fsfssfs")
@@ -57,7 +56,6 @@ export default function MainPage(props) {
             //     ipcRenderer.send("openNewVideo", file)
             // }
             // setNewVideo(true)
-            // ipcRenderer.removeListener('fileSelected', () => { });
             if (props.location.state.filePath.url[0] == undefined || props.location.state.filePath.url[0] == "/") {
                 // console.log("No file opened")
                 // console.log(props.location.state.filePath.url)
@@ -70,7 +68,11 @@ export default function MainPage(props) {
         // console.log(Date())
         // else {
         // console.log(props.location.state)
-        ipcRenderer.once('fileSelected', processData)
+        if(isMounted){
+            ipcRenderer.once("getStore", processData)
+            ipcRenderer.once('fileSelected', processData)
+
+        }
 
         // }
 
@@ -83,6 +85,7 @@ export default function MainPage(props) {
 
         return () => {
             isMounted = false;
+            ipcRenderer.removeListener('getStore', processData)
             ipcRenderer.removeListener('fileSelected', processData);
             // setNewVideo(false)
         }
@@ -105,11 +108,13 @@ export default function MainPage(props) {
             let cancel = result.canceled
             // setNewVideo(true)
             // let filePaths = result.filePaths
-            console.log(result)
-            // setFilePath(result.filePaths)
+            // console.log(result)
+            setFilePath(result.filePaths)
             // console.log(result.filePaths)
             ipcRenderer.send("openNewVideo", result.filePaths)
-            dispatch({type: "SHOW_VIDEO"})
+
+            ipcRenderer.send("getStore",result.filePaths)
+            dispatch({ type: "SHOW_VIDEO" })
             console.log(cancel)
         });
 

@@ -21,6 +21,31 @@ const reader = new FileReader();
 const { PythonShell } = require('python-shell')
 let test = []
 
+function getRealTime(time) {
+
+    var hours = parseInt(time[0])
+    var minutes = parseInt(time[1])
+    var seconds = parseFloat(time[2].replace(",", "."))
+    var subtitle_time = hours * 3600 + minutes * 60 + seconds
+
+    return subtitle_time
+}
+
+function getCurrentSubtitle(data, currentTime) {
+    var currentSubtitle = ""
+    for (var i = 0; i < data.length; i++) {
+        var time_1 = data[i].timestamp_1.split(":")
+        var time_2 = data[i].timestamp_2.split(":")
+        var subtitle_time_1 = getRealTime(time_1)
+        var subtitle_time_2 = getRealTime(time_2)
+
+        if (currentTime > subtitle_time_1 && currentTime <= subtitle_time_2) {
+            currentSubtitle = data[i].content
+            return currentSubtitle
+        }
+    }
+}
+
 function alignTimestamp(data) {
     // console.log(data)
     let originData = generateSrtFile(data)
@@ -90,17 +115,17 @@ function generateSrtFile(data) {
 }
 
 function processSubtitle(data) {
-    console.log(data)
+    // console.log(data)
     var all_subtitles = []
     var subtitles = data.split("\n\n")
-    console.log(subtitles)
+    // console.log(subtitles)
     for (var i = 0; i < subtitles.length; i++) {
         if (subtitles[i] != "") {
 
             var processed_subtitles = {}
 
             var subtitle = subtitles[i].split("\n")
-            console.log(subtitle)
+            // console.log(subtitle)
             var timestamps = subtitle[1].split(" --> ")
             // console.log(timestamps)
             var timestamp_1 = timestamps[0]
@@ -128,8 +153,9 @@ function processSubtitle(data) {
 }
 
 
-
 class VideoPlayer extends React.Component {
+
+    _isMounted = false;
 
     state = {
         url: null,
@@ -145,13 +171,16 @@ class VideoPlayer extends React.Component {
         subtitle_url: "",
         hasSubtitle: false,
         hover: false,
+        muted: true,
         playedSeconds: 0,
         subtitle: [],
         videoName: "None",
-        editTime: "None",
+        editTime: "New File",
         subtitle_name: "None",
         display: 'none',
         display_button: 'block',
+        latex_display_content: "",
+        currentSubtitle: "",
     }
 
     handlePlayPause = () => {
@@ -159,6 +188,11 @@ class VideoPlayer extends React.Component {
         // console.log(this.ref)
     }
 
+    handleMute = () => {
+        this.setState({
+            muted: !this.state.muted
+        })
+    }
     // handleReady = state => {
     //     console.log(state)
     // }
@@ -169,6 +203,12 @@ class VideoPlayer extends React.Component {
         // console.log('onProgress:', state)
         // console.log(state)
         this.setState(state)
+
+
+        this.setState({
+            currentSubtitle:
+                getCurrentSubtitle(this.state.subtitle, this.state.duration * this.state.played)
+        })
 
         // console.log(this.state.playedSeconds)
     }
@@ -185,14 +225,18 @@ class VideoPlayer extends React.Component {
 
     handleOpenSubtitles = () => {
         // console.log(state)
-        console.log(test)
+        // console.log(test)
+        // console.log(this.state.display)
+        // console.log(this.state.subtitle)
+
         dialog.showOpenDialog({
             properties: ['openFile'],
             filters: [
                 { name: "Subtitles", extensions: ['srt', 'vtt'] }
             ]
-        }).then((result) => {
+        }).then(result => {
             let cancel = result.canceled
+            console.log(result)
             // setNewVideo(true)
             // let filePaths = result.filePaths
             // console.log(result.filePaths)
@@ -202,6 +246,8 @@ class VideoPlayer extends React.Component {
             // dispatch({type: "SHOW_VIDEO"})
             // console.log(cancel)
             // console.log(result)
+            var video_name = this.props.filePath[0].split("/").pop()
+            // console.log(video_name)
             var subtitle_name = result.filePaths[0].split("/").pop()
             // console.log(subtitle_name)
             // console.log(result.filePaths)
@@ -217,15 +263,17 @@ class VideoPlayer extends React.Component {
                 test = processSubtitle(data)
                 // console.log(data)
             })
-            console.log(test)
+            // console.log(test)
             this.setState({
                 subtitle_url: result.filePaths[0],
                 hasSubtitle: true,
                 subtitle_name: subtitle_name,
                 display: 'block',
                 display_button: 'none',
+                videoName: video_name
             })
         });
+
     }
 
 
@@ -251,11 +299,13 @@ class VideoPlayer extends React.Component {
     }
 
     componentDidMount() {
+        this._isMounted = true
         // console.log("Component Did Mount!")
         // console.log(this.props)
         // console.log(this.props.filePath)
         // console.log(this.props.hasVideo)
         // console.log(this.state.subtitle_url)
+
         fs.readFile(this.state.subtitle_url, 'utf8', (err, data) => {
             if (err) {
                 console.log(err)
@@ -270,30 +320,29 @@ class VideoPlayer extends React.Component {
             // console.log(test)
         })
 
-        ipcRenderer.once("CurrentFile", (event, message) => {
-            // console.log(message)
-            this.setState({
-                videoName: message.name,
-                editTime: message.date
-            })
-        })
+        if (this._isMounted) {
+            ipcRenderer.on("CurrentFile", this.handleCurrentFile)
 
-        ipcRenderer.on("SaveEditSubtitle", (event, message) => {
-            this.saveEditSubtitle();
-        })
+            ipcRenderer.on("SaveEditSubtitle", this.saveEditSubtitle)
 
-        ipcRenderer.on("ResetEditSubtitle", (event, message) => {
-            this.handleResetSubtitle();
-        })
+            ipcRenderer.on("ResetEditSubtitle", this.handleResetSubtitle)
 
-        ipcRenderer.removeListener("SaveEditSubtitle", (event, message) => {
-            this.saveEditSubtitle();
-        })
+            ipcRenderer.on("PlayPauseVideo", this.handlePlayPause)
 
-        ipcRenderer.removeListener("ResetEditSubtitle", (event, message) => {
-            this.handleResetSubtitle();
+            ipcRenderer.on("MuteVideo", this.handleMute)
+
+
+        }
+    }
+
+    handleCurrentFile = (event, message) => {
+        // console.log(message)
+        this.setState({
+            videoName: message.name,
+            editTime: message.date
         })
     }
+
 
     componentDidUpdate() {
         if (this.state.seekTo) {
@@ -303,8 +352,6 @@ class VideoPlayer extends React.Component {
             })
             this.player.seekTo(this.state.playedSeconds)
             console.log(this.player)
-
-
         }
         // if (this.state.hasSubtitle) {
         // let srtURL = URL.createObjectURL(this.state.subtitle_url)
@@ -319,6 +366,33 @@ class VideoPlayer extends React.Component {
         // console.log(this.state.subtitle)
     }
     componentWillUnmount() {
+        this._isMounted = false
+        // ipcRenderer.removeAllListeners()
+
+        ipcRenderer.removeListener("SaveEditSubtitle", this.saveEditSubtitle)
+
+        ipcRenderer.removeListener("ResetEditSubtitle", this.handleResetSubtitle)
+        ipcRenderer.removeListener("CurrentFile", this.handleCurrentFile)
+
+        ipcRenderer.removeListener("PlayPauseVideo", this.handlePlayPause)
+
+        ipcRenderer.removeListener("MuteVideo", this.handleMute)
+
+        // console.log(ipcRenderer.removeListener('', () => { }));
+        // ipcRenderer.removeListener("CurrentFile", (event, message) => {
+        //     // console.log(message)
+        //     this.setState({
+        //         videoName: message.name,
+        //         editTime: message.date
+        //     })
+        // })
+        // ipcRenderer.removeListener("SaveEditSubtitle", (event, message) => {
+        //     this.saveEditSubtitle();
+        // })
+
+        // ipcRenderer.removeListener("ResetEditSubtitle", (event, message) => {
+        //     this.handleResetSubtitle();
+        // })
         // console.log('Component Will Unmount!')
     }
 
@@ -349,7 +423,7 @@ class VideoPlayer extends React.Component {
                 defaultPath: this.state.subtitle_url,
                 filters: [{ name: "All files", extensions: ["*"] }]
             }).then((result) => {
-                console.log(result)
+                // console.log(result)
                 srtFile = generateSrtFile(this.state.subtitle)
                 fs.writeFileSync(result.filePath, srtFile)
             }).catch((req) => {
@@ -415,12 +489,17 @@ class VideoPlayer extends React.Component {
                     playing={this.state.playing}
                     controls={this.state.controls}
                     duration={this.state.duration}
-                    muted={true}
+                    muted={this.state.muted}
 
                     // onReady = {this.handleReady}
                     onProgress={this.handleProgress}
                     onDuration={this.handleDuration}
                 />
+                <div className='currentSubtitle'>
+                    {this.state.currentSubtitle}
+                </div>
+
+
                 <div className="basic-info-area"
                     style={{ display: this.state.display }}>
                     <h4 id='video_info_title'>Video Information</h4>
@@ -463,6 +542,14 @@ class VideoPlayer extends React.Component {
                                 <th>Command + G: </th>
                                 <td>Reset the subtitle</td>
                             </tr>
+                            <tr>
+                                <th>Command + P: </th>
+                                <td>Play/Pause the video</td>
+                            </tr>
+                            <tr>
+                                <th>Command + M: </th>
+                                <td>Mute/Unmute the video</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -471,40 +558,31 @@ class VideoPlayer extends React.Component {
                     style={{ display: this.state.display }}>
                     <h4 id='video_info_title'
                     >Preview of LaTeX notations</h4>
-                    <span>In order to show mathematics equation correctly, please make sure to use the following phrase in the subtitles.</span>
+                    {/* <span>In order to show mathematics equation correctly, please make sure to use the following phrase in the subtitles.</span> */}
+                    <h4 id='latex_input_title'>Math equation input area: </h4>
+                    <textarea className="input-math-area"
+                        value={this.state.latex_display_content}
+                        onChange={(event) => {
+                            // console.log(event.target.value)
+                            this.setState({
+                                latex_display_content: event.target.value
+                            })
+                        }}>
+                    </textarea>
 
-                    <MathJaxContext>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <th>Alpha: </th>
-                                    <td>
-                                        <MathJax>{"\\( \\alpha \\)"}</MathJax></td>
-                                </tr>
-                                <tr>
-                                    <th>Beta: </th>
-                                    <td>
-                                        <MathJax>{"\\( \\beta \\)"}</MathJax></td>
-                                </tr>
-                                <tr>
-                                    <th>Rho: </th>
-                                    <td>
-                                        <MathJax>{"\\( \\rho \\)"}</MathJax></td>
-                                </tr>
-                                <tr>
-                                    <th>sigma: </th>
-                                    <td>
-                                        <MathJax>{"\\( \\sigma \\)"}</MathJax></td>
-                                </tr>
-                                <tr>
-                                    <th>alpha subscript 2: </th>
-                                    <td>
-                                        <MathJax>{"\\( \\alpha_{2} \\)"}</MathJax></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <h4 id='latex_input_title'>LaTeX Result: </h4>
 
-                    </MathJaxContext>
+                    <div className="latex-show-area">
+                        <MathJaxContext version={3}>
+
+                            <MathJax inline dynamic>
+                                <div style={{ width: '80%', height: '20%', backgroundColor: 'white', overflow: 'scroll' }}>{`\\( ${this.state.latex_display_content} \\)`}</div>
+                            </MathJax>{" "}
+
+                        </MathJaxContext>
+
+                    </div>
+
                 </div>
 
                 <div className='function-area'>
