@@ -89,27 +89,29 @@ export default function SideBarComponent(url) {
             </Menu.Item> */}
                 <Menu.Item key="1" icon={<HomeOutlined />} onClick={() => { dispatch({ type: "key1" }) }}>
                     <Link to={{ pathname: '/' }} onClick={() => {
-                        if (filePath.url != ""){
+                        if (filePath.url != "") {
                             // console.log(filePath)
                             dispatch({ type: "SHOW_VIDEO" })
-                            ipcRenderer.send("getStore",filePath.url)
-
+                            ipcRenderer.send("getStore", filePath.url)
                         }
                     }}>
-                        Home Page
+                        Subtitle Editor Page
                     </Link>
                 </Menu.Item>
-                {/* <Menu.Item key="2" icon={<EditOutlined />} onClick={() => {dispatch({type:"key2"})}}>
-                    <Link to={{pathname:'/EditPage',state:{filePath: filePath}}}>
-                        Edit Page
+                <Menu.Item key="2" icon={<EditOutlined />} onClick={() => { dispatch({ type: "key2" }) }}>
+                    <Link to={{ pathname: '/HtmlPage', state: { filePath: filePath } }} onClick={() => {
+
+                        dispatch({ type: "HIDE_VIDEO" })
+                    }}>
+                        Html Editor Page
                     </Link>
-                </Menu.Item> */}
-                <Menu.Item key="2" icon={<HistoryOutlined />} onClick={() => { dispatch({ type: "key2" }) }}>
+                </Menu.Item>
+                <Menu.Item key="3" icon={<HistoryOutlined />} onClick={() => { dispatch({ type: "key3" }) }}>
                     <Link to="/HistoryPage">
                         History
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="3" icon={<SettingOutlined />} onClick={() => { dispatch({ type: "key3" }) }}>
+                <Menu.Item key="4" icon={<SettingOutlined />} onClick={() => { dispatch({ type: "key4" }) }}>
                     <Link to="/SettingPage">
                         Setting
                     </Link>

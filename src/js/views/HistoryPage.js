@@ -44,7 +44,7 @@ export default function HistoryPage() {
         ipcRenderer.send("removeAllHistory", "Clear")
     }
 
-    console.log(ipcRenderer.removeListener('', () => { }));
+    // console.log(ipcRenderer.removeListener('', () => { }));
     // dispatch({type: 'CHANGE_SIDEBAR'})
     // useEffect(() => {
     //     console.log()

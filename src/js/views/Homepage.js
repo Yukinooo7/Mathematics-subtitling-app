@@ -5,7 +5,7 @@ import { Layout, Menu, Button } from 'antd';
 
 
 import MainPage from './MainPage'
-import EditPage from './EditPage';
+import HtmlPage from './HtmlPage';
 import HistoryPage from './HistoryPage';
 import SettingPage from './SettingPage';
 import { HashRouter, Link, Route } from 'react-router-dom';
@@ -13,7 +13,7 @@ import { HashRouter, Link, Route } from 'react-router-dom';
 
 import SideBarList from '../components/SideBarComponent';
 import HeaderComponent from '../components/HeaderComponent';
-import VideoPlayer from '../components/VideoPlayer';
+import VideoPlayer from './SubtitleEditPage';
 
 
 const { BrowserWindow, getCurrentWindow, dialog } = require('@electron/remote')
@@ -82,7 +82,7 @@ export default function HomePage() {
                     >
                         <div>
                             <Route exact path="/" component={MainPage} />
-                            <Route path="/EditPage" component={EditPage} />
+                            <Route path="/HtmlPage" component={HtmlPage} />
                             <Route path='/HistoryPage' component={HistoryPage} />
                             <Route path="/SettingPage" component={SettingPage} />
                         </div>

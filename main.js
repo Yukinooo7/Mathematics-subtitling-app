@@ -167,7 +167,7 @@ app.whenReady()
         tray = new Tray(trayIcon);
         tray.setContextMenu(menu);
 
-        const splash = createSplashWindow("./pages/splash.html");
+        const splash = createSplashWindow("splash.html");
         mainWindow = createWindow();
 
         mainWindow.once('ready-to-show', () => {
@@ -233,7 +233,7 @@ ipcMain.on("openNewVideo", (event, message) => {
 
     addVideosHistory(message)
 
-    mainWindow.webContents.send('fileSelected', message[0]);
+    mainWindow.webContents.send('fileSelected', message);
 })
 
 ipcMain.on('CurrentFile', (event, message) => {
@@ -296,7 +296,8 @@ let app_menu = [
                     console.log(filePaths)
                     if (!cancel && mainWindow && filePaths.length > 0) {
                         // mainWindow.webContents.on('did-finish-load', () => {
-                        mainWindow.webContents.send('fileSelected', filePaths[0]);
+                        mainWindow.webContents.send('fileSelected', filePaths);
+                        
                         // console.log("I AM MAIN PROCESS")
                         // console.log(filePaths)
                         // console.log(filePaths[0])
