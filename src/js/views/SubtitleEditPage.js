@@ -1,15 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react'
 import ReactPlayer from 'react-player'
 import { Button, Row, Progress, Card, Table } from 'antd'
+import Tooltip from '@material-ui/core/Tooltip';
+import SubtitlesIcon from '@material-ui/icons/Subtitles';
+import FolderIcon from '@material-ui/icons/Folder';
+import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
+import DescriptionTwoToneIcon from '@material-ui/icons/DescriptionTwoTone';
+import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 
 import SubtitleContent from '../components/SubtitleContent'
 import SaveArea from '../components/SaveArea'
+import BasicInfoComponent from '../components/BasicInfoComponent'
+import PreviewLatex from '../components/PreviewLatex';
 import Duration from '../Utils/Duration'
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, clipboard } from 'electron'
+
+
+// import html_icon from '../icons/html.svg'
+import * as consts from '../Utils/consts'
 
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 
-const { dialog } = require('@electron/remote')
+const { dialog, } = require('@electron/remote')
 
 import '../styles/VideoPlayer.css'
 import { spawn } from 'child_process'
@@ -21,15 +33,16 @@ import * as ProcessFunctions from '../Utils/Process'
 let fs = require('fs')
 const reader = new FileReader();
 const { PythonShell } = require('python-shell')
-let test = []
+var test = []
+// let latexTransferData = [1, "none", "none"]
 
-function processData(data){
+function processData(data) {
 
-    if (data != undefined){
+    if (data != undefined) {
 
         return data.split("/").pop()
 
-    }else {
+    } else {
         return "None"
     }
 }
@@ -40,7 +53,7 @@ class SubtitleEditPage extends React.Component {
 
     state = {
         url: null,
-        playing: true,
+        playing: false,
         controls: true,
         duration: 0,
         playbackRate: 1.0,
@@ -48,10 +61,9 @@ class SubtitleEditPage extends React.Component {
         played: 0,
         playedSeconds: 0,
         seekTo: false,
-        display_button: false,
         subtitle_url: "",
         hasSubtitle: false,
-        hover: false,
+        // hover: false,
         muted: true,
         playedSeconds: 0,
         subtitle: [],
@@ -60,9 +72,15 @@ class SubtitleEditPage extends React.Component {
         subtitle_name: "None",
         display: 'none',
         display_button: 'block',
+        displaySubtitle: 'none',
+        displayLatexSubtitle: 'none',
+        latexEditMode: false,
         latex_display_content: "",
         currentSubtitle: "",
         ifShowVideo: false,
+        allowScroll: true,
+        hasTransferred: false,
+        latexTransferData: [1, "none", "none"],
     }
 
     handlePlayPause = () => {
@@ -77,29 +95,41 @@ class SubtitleEditPage extends React.Component {
     }
     // handleReady = state => {
     //     console.log(state)
+    // // }
+    // toggleHover = () => {
+    //     this.setState({ hover: !this.state.hover })
     // }
-    toggleHover = () => {
-        this.setState({ hover: !this.state.hover })
-    }
     handleProgress = state => {
         // console.log('onProgress:', state)
         // console.log(state)
         this.setState(state)
+        const currentList = ProcessFunctions.getCurrentSubtitle(this.state.subtitle, this.state.duration * this.state.played)
+        if (currentList != undefined) {
+            this.setState({
+                currentSubtitle: currentList.content
+            })
 
-
-        this.setState({
-            currentSubtitle:
-                ProcessFunctions.getCurrentSubtitle(this.state.subtitle, this.state.duration * this.state.played)
-        })
+            // console.log(currentList.id)
+            if (this.state.allowScroll) {
+                var scrollToSubtitle = document.getElementById(`subtitle${currentList.id}`)
+                scrollToSubtitle.scrollIntoView(false);
+            }
+        }
+        // this.setState({
+        //     currentSubtitle:
+        //         ProcessFunctions.getCurrentSubtitle(this.state.subtitle, this.state.duration * this.state.played)
+        // })
 
         // console.log(this.state.playedSeconds)
+        // const subtitle_id = this.state
+        // var elemnt = document.getElementById('subtitle20')
+        // elemnt.scrollIntoView(false);
     }
 
     handleDuration = duration => {
         // console.log('onDuration:', duration)
         this.setState({ duration })
     }
-
 
     ref = player => {
         this.player = player
@@ -128,9 +158,9 @@ class SubtitleEditPage extends React.Component {
             // dispatch({type: "SHOW_VIDEO"})
             // console.log(cancel)
             // console.log(result)
-            console.log(this.props.filePath)
+            // console.log(this.props.filePath)
             var video_name = this.props.filePath[0].split("/").pop()
-            console.log(video_name)
+            // console.log(video_name)
             var subtitle_name = result.filePaths[0].split("/").pop()
             // console.log(subtitle_name)
             // console.log(result.filePaths)
@@ -150,9 +180,11 @@ class SubtitleEditPage extends React.Component {
             this.setState({
                 subtitle_url: result.filePaths[0],
                 hasSubtitle: true,
+                playing: true,
                 subtitle_name: subtitle_name,
                 display: 'block',
                 display_button: 'none',
+                displaySubtitle: 'block',
                 videoName: video_name
             })
         });
@@ -216,8 +248,40 @@ class SubtitleEditPage extends React.Component {
 
             ipcRenderer.on("MuteVideo", this.handleMute)
 
+            ipcRenderer.on("LatexTransfer", this.handleLatexTransfer)
+
 
         }
+    }
+
+    handleLatexTransfer = () => {
+
+        if (this.state.latexEditMode) {
+            const selection = window.getSelection()
+            // console.log(selection)
+            const str = selection.toString()
+            selection.removeAllRanges()
+            const latex = `\\( ${str} \\)`
+            // console.log(str)
+            // clipboard.writeText(latex)
+            // clipboard.readText(latex)
+            // latexTransferData[1] = clipboard.readText()
+            var timestamp = (new Date()).valueOf();
+            // console.log(timestamp)
+            var temp = [0, "none", "none"]
+            temp[0] = document.activeElement.id
+            temp[1] = document.activeElement.value.replace(str, latex)
+            temp[2] = timestamp
+            this.setState({
+                latexTransferData: temp
+            })
+            // console.log(document.activeElement.id)
+            // console.log(latexTransferData)
+
+        }
+        // document.activeElement.value = clipboard.readText()
+        // document.getElementById('1').innerHTML = clipboard.readText()
+        // console.log(document.getElementById('1').innerHTML)
     }
 
     handleCurrentFile = (event, message) => {
@@ -236,10 +300,10 @@ class SubtitleEditPage extends React.Component {
                 seekTo: false,
             })
             this.player.seekTo(this.state.playedSeconds)
-            console.log(this.player)
-        }        
-        if(this.props.filePath != "" && !this.state.ifShowVideo){
-            console.log(this.props.filePath)
+            // console.log(this.player)
+        }
+        if (this.props.filePath != "" && !this.state.ifShowVideo) {
+            // console.log(this.props.filePath)
             this.setState({
                 ifShowVideo: true,
                 videoName: this.props.filePath[0].split("/").pop()
@@ -254,7 +318,6 @@ class SubtitleEditPage extends React.Component {
         // }
         // console.log("sdas")
         // console.log(this.state.subtitle_url)
-
         // }
         // console.log(this.state.subtitle)
     }
@@ -270,6 +333,8 @@ class SubtitleEditPage extends React.Component {
         ipcRenderer.removeListener("PlayPauseVideo", this.handlePlayPause)
 
         ipcRenderer.removeListener("MuteVideo", this.handleMute)
+
+        ipcRenderer.removeListener("LatexTransfer", this.handleLatexTransfer)
 
         this.setState({
             ifShowVideo: false
@@ -302,9 +367,12 @@ class SubtitleEditPage extends React.Component {
         // test[editID] = newTime
         // console.log(this.state.subtitle)
         // console.log(test)
+        this.setState({
+            currentSubtitle: newTime.content
+        })
         // test = newTime
-        console.log(test[editID])
-        console.log(this.state.subtitle[editID])
+        // console.log(test[editID])
+        // console.log(this.state.subtitle[editID])
         // console.log(test)
         // this.setState({
         //     subtitle: newTime
@@ -329,51 +397,166 @@ class SubtitleEditPage extends React.Component {
     }
 
     handleResetSubtitle = () => {
+
+        const original = test
         this.setState({
-            subtitle: test
+            subtitle: original
         })
     }
 
+    // generateHtmlFile = () => {
+    //     let htmlPath = this.state.subtitle_url.replace(".srt", ".html")
+    //     // console.log(this.state.subtitle_url)
+    //     // console.log(htmlPath)
+    //     dialog.showSaveDialog(
+    //         {
+    //             title: "Save as",
+    //             defaultPath: htmlPath,
+    //             filters: [{ name: "All files", extensions: ["*"] }]
+    //         }).then((result) => {
+    //             // console.log(result)
+    //             // srtFile = generateSrtFile(this.state.subtitle)
+    //             // fs.writeFileSync(result.filePath, srtFile)
+    //             // pythonPath:'/Users/lingyun/opt/anaconda3/bin/python',
+    //             // console.log(PythonShell.run("srt2html.py", { scriptPath: path.join(__dirname, "utils", ""), option:"/Users/lingyun/opt/anaconda3/bin/python3", args: [this.state.subtitle_url, result.filePath] }, function (err, results) {
+    //             //     if (err) throw err
+    //             //     console.log(results)
+    //             //     console.log()
+    //             // }))
+    //             PythonShell.run("srt2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: '', args: [this.state.subtitle_url, result.filePath] }, function (err, results) {
+    //                 if (err) throw err
+    //                 console.log(results)
+    //                 console.log()
+    //             })
+    //         }).catch((req) => {
+    //             console.log(req)
+    //         })
+    //     // Run Python script
+
+    //     // console.log(this.state.subtitle_url)
+
+    // }
+
     generateHtmlFile = () => {
-        let htmlPath = this.state.subtitle_url.replace(".srt", ".html")
-        console.log(this.state.subtitle_url)
-        console.log(htmlPath)
-        dialog.showSaveDialog(
-            {
-                title: "Save as",
-                defaultPath: htmlPath,
-                filters: [{ name: "All files", extensions: ["*"] }]
-            }).then((result) => {
-                // console.log(result)
-                // srtFile = generateSrtFile(this.state.subtitle)
-                // fs.writeFileSync(result.filePath, srtFile)
-                PythonShell.run("srt2html.py", { scriptPath: path.join(__dirname, "src/js", "/python_scripts"), args: [this.state.subtitle_url, result.filePath] }, function (err, results) {
-                    if (err) throw err
-                    console.log(results)
-                })
-            }).catch((req) => {
-                console.log(req)
+
+        if (!this.state.hasTransferred) {
+            this.setState({
+                subtitle: ProcessFunctions.srt2html(this.state.subtitle),
+                hasTransferred: true,
             })
-        // Run Python script
 
-        console.log(this.state.subtitle_url)
-
+        }
     }
 
     handleAlignTime = () => {
         this.setState({
-            subtitle: ProcessFunctions.alignTimestamp(this.state.subtitle)
+            // subtitle: ProcessFunctions.alignTimestamp(this.state.subtitle)
+            subtitle: ProcessFunctions.srt2html(this.state.subtitle)
         })
 
     }
 
-    render() {
-        var linkStyle;
-        if (this.state.hover) {
-            linkStyle = { backgroundColor: 'LightGray', display: this.state.display }
+    handleLatexModeChange = () => {
+        this.setState({
+            latexEditMode: !this.state.latexEditMode,
+            displaySubtitle: 'block',
+            displayLatexSubtitle: 'block',
+        })
+    }
+
+    handleDisplaySubtitle = () => {
+        if (this.state.displaySubtitle == 'none') {
+            // console.log(this.state.displaySubtitle)
+            this.setState({
+                displaySubtitle: 'block',
+                // displayLatexSubtitle: 'none',
+            })
         } else {
-            linkStyle = { backgroundColor: 'white', display: this.state.display }
+            // console.log(this.state.displaySubtitle)
+            this.setState({
+                displaySubtitle: 'none',
+                // displayLatexSubtitle: 'block',
+            })
         }
+    }
+
+    handleDisplayLatexSubtitle = () => {
+        if (this.state.displayLatexSubtitle == 'none') {
+            // console.log(this.state.displaySubtitle)
+            this.setState({
+                displayLatexSubtitle: 'block',
+            })
+        } else {
+            // console.log(this.state.displaySubtitle)
+            this.setState({
+                displayLatexSubtitle: 'none',
+            })
+        }
+
+    }
+
+    handleAllowScroll = (boolean) => {
+
+        this.setState({
+            allowScroll: boolean
+        })
+    }
+
+    handleEditing = (data) => {
+
+        this.handleAllowScroll(false)
+        this.setState({
+            // playing: false,
+            currentSubtitle: data.content
+        })
+        // var scrollToSubtitle = document.getElementById(`subtitle${currentId}`)
+        // scrollToSubtitle.scrollIntoView(false);
+        // console.log(data)
+        // console.log(this.state.playedSeconds)
+        // console.log(data.timestamp_1)
+        var realTime = ProcessFunctions.getRealTime(data.timestamp_1.split(":"))
+        // console.log(realTime)
+        if (realTime < 1) {
+            realTime = 0
+        }
+        this.player.seekTo(realTime)
+        // console.log(this.player.getCurrentTime())
+        // console.log(this.state.playing)
+
+
+    }
+
+    handleEditStart = (data) => {
+        this.setState({
+            playing: false
+        })
+
+        var realTime = ProcessFunctions.getRealTime(data.timestamp_1.split(":"))
+
+        if (realTime < 1) {
+            realTime = 0
+        }
+        // console.log(realTime)
+        this.player.seekTo(realTime)
+    }
+
+    handleEditEnd = () => {
+        this.setState({
+            // playing: true,
+            allowScroll: true,
+        })
+        console.log(this.state.playing)
+
+    }
+
+
+    render() {
+        // var linkStyle;
+        // if (this.state.hover) {
+        //     linkStyle = { backgroundColor: 'LightGray', display: this.state.display }
+        // } else {
+        //     linkStyle = { backgroundColor: 'white', display: this.state.display }
+        // }
         return (
             <div className='player-wrapper'>
                 <ReactPlayer
@@ -392,110 +575,109 @@ class SubtitleEditPage extends React.Component {
                     onProgress={this.handleProgress}
                     onDuration={this.handleDuration}
                 />
-                <div className='currentSubtitle'>
-                    {this.state.currentSubtitle}
-                </div>
 
+                {this.state.latexEditMode ?
 
-                <div className="basic-info-area"
-                    >
-                    <h4 id='video_info_title'>Video Information</h4>
-                    {/* <p>Video title: </p>
-                    <p>Subtitle File name: </p>
-                    <p>Last edited time:  </p> */}
-                    <table >
-                        <tbody>
-                            <tr>
-                                <th >Video file: </th>
-                                <td>{this.state.videoName}</td>
-                            </tr>
-                            <tr>
-                                <th>Subtitle file: </th>
-                                <td>{this.state.subtitle_name}</td>
-                            </tr>
-                            <tr>
-                                <th>Last edit time: </th>
-                                <td>{this.state.editTime}</td>
-                            </tr>
-                            {/* <tr>
-                                <th>Last edit time: </th>
-                                <td>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</td>
-                            </tr> */}
-                        </tbody>
-                    </table>
-                    <h4 id='video_info_title'
-                        style={{
-                            marginTop: "5px",
-                        }}
-                    >Current Shortcuts</h4>
+                    <div className='currentSubtitle' style={{ display: this.state.displayLatexSubtitle }}>
 
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th>Command + O: </th>
-                                <td>Open new video</td>
-                            </tr>
-                            <tr>
-                                <th>Command + S: </th>
-                                <td>Save the edited subtitle</td>
-                            </tr>
-                            <tr>
-                                <th>Command + G: </th>
-                                <td>Reset the subtitle</td>
-                            </tr>
-                            <tr>
-                                <th>Command + P: </th>
-                                <td>Play/Pause the video</td>
-                            </tr>
-                            <tr>
-                                <th>Command + M: </th>
-                                <td>Mute/Unmute the video</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="preview-latex-area"
-                    style={{ display: this.state.display }}>
-                    <h4 id='video_info_title'
-                    >Preview of LaTeX notations</h4>
-                    {/* <span>In order to show mathematics equation correctly, please make sure to use the following phrase in the subtitles.</span> */}
-                    <h4 id='latex_input_title'>Math equation input area: </h4>
-                    <textarea className="input-math-area"
-                        value={this.state.latex_display_content}
-                        onChange={(event) => {
-                            // console.log(event.target.value)
-                            this.setState({
-                                latex_display_content: event.target.value
-                            })
-                        }}>
-                    </textarea>
-
-                    <h4 id='latex_input_title'>LaTeX Result: </h4>
-
-                    <div className="latex-show-area">
                         <MathJaxContext version={3}>
 
                             <MathJax inline dynamic>
-                                <div style={{ width: '80%', height: '20%', backgroundColor: 'white', overflow: 'scroll' }}>{`\\( ${this.state.latex_display_content} \\)`}</div>
+                                <div className="text">
+                                    <p>
+                                        {this.state.currentSubtitle}
+                                    </p>
+                                </div>
                             </MathJax>{" "}
 
                         </MathJaxContext>
-
+                    </div>
+                    :
+                    <div className='currentSubtitle' style={{ display: this.state.displaySubtitle, marginTop: '5%' }}>
+                        {this.state.currentSubtitle}
                     </div>
 
-                </div>
+                }
 
-                <div className='function-area'>
+                <BasicInfoComponent videoName={this.state.videoName} subtitle_name={this.state.subtitle_name} editTime={this.state.editTime} html_description={consts.subtitle_description} latexEditMode={this.state.latexEditMode}/>
+                {this.state.latexEditMode ?
+                    <PreviewLatex display={this.state.display} />
+                    :
+                    ""
+                }
 
-                    <Button id="open_subtitle"
-                        onClick={this.handleOpenSubtitles}>Open Subtitles</Button>
 
-                    <Button id="open_subtitle"
-                        onClick={this.generateHtmlFile}>Generate HTML file</Button>
 
-                    <Button id="open_subtitle"
-                        onClick={this.handleAlignTime}>Align timestamps</Button>
+                <div className='function-area' >
+                    <Row>
+                        <Tooltip title="Open New Video" placement="top" arrow>
+                            <AddCircleOutlineOutlinedIcon id="open_subtitle" onClick={this.props.openVideo} fontSize='large' />
+                        </Tooltip>
+
+                        <Tooltip title="Open Subtitle" placement="top" arrow>
+
+                            {this.state.hasSubtitle ?
+                                <DescriptionOutlinedIcon id="open_subtitle" onClick={this.handleOpenSubtitles} fontSize='large' />
+                                :
+                                <DescriptionOutlinedIcon style={{
+                                    backgroundColor: 'dodgerblue'
+                                }} id="open_subtitle" onClick={this.handleOpenSubtitles} fontSize='large' />
+                            }
+                        </Tooltip>
+
+                        {this.state.latexEditMode ?
+                            <Tooltip title="Show/Hide LaTeX Subtitles" placement="top" arrow>
+                                <img src="assets/images/latexDisplay.svg" id="open_subtitle" onClick={this.handleDisplayLatexSubtitle} style={{ width: '30px' }}></img>
+                            </Tooltip>
+                            :
+                            <Tooltip title="Show/Hide Subtitles" placement="top" arrow>
+                                <SubtitlesIcon id="open_subtitle" fontSize='large' onClick={this.handleDisplaySubtitle} />
+                            </Tooltip>
+                        }
+
+                        {/* <Button id="open_subtitle"
+                        onClick={this.generateHtmlFile}>Generate HTML file</Button> */}
+
+                        <Tooltip title="Align Timestamps" placement="top" arrow>
+                            <img src="assets/images/alignTime.svg" id="open_subtitle" onClick={this.handleAlignTime} style={{ width: '30px' }}></img>
+
+                        </Tooltip>
+                        {this.state.latexEditMode ?
+                            <Tooltip title="Generate math subtitles" placement="top" arrow>
+                                <img src="assets/images/html.svg" id="open_subtitle" onClick={this.generateHtmlFile} style={{ width: '30px' }}></img>
+
+                            </Tooltip>
+                            :
+                            ""
+                        }
+                        {/* <Button onClick={() => {
+                            // console.log(this.state.subtitle)
+                            if(!this.state.hasTransferred){
+                                this.setState({
+                                    subtitle:ProcessFunctions.srt2html(this.state.subtitle),
+                                    hasTransferred: true,
+                                })
+
+                            }
+                        }}>
+                            Generate Math Subtitle
+                        </Button> */}
+                        <Tooltip title="Go to LaTeX Edit Page" placement="top" arrow>
+                            <Button size='small' style={{ position: 'absolute', marginLeft: '75%', marginTop: "1%" }} onClick={this.handleLatexModeChange}>{this.state.latexEditMode ? 'Subtitle Editing Mode' : 'LaTeX Editing Mode'}</Button>
+                        </Tooltip>
+
+                        {/* <Tooltip title="Align Timestamps" placement="top" arrow>
+                            {this.state.hasSubtitle ? <DescriptionOutlinedIcon /> : <DescriptionTwoToneIcon />}
+
+                        </Tooltip> */}
+
+
+                    </Row>
+
+                    {/* <Button id="open_subtitle"
+                        onClick={this.handleAlignTime}>Align timestamps</Button> */}
+
+
 
                     {/* <Button 
                         onClick={this.handlePlayPause}
@@ -511,6 +693,11 @@ class SubtitleEditPage extends React.Component {
                     </Progress> */}
 
                 </div>
+                {this.state.hasSubtitle ?
+                    ""
+                    :
+                    <span className="no-subtitle">Please Open a subtitle file</span>}
+
                 <div className='save-area'
                     style={{ display: this.state.display }}>
                     {/* <SaveArea duration={this.state.duration} played={this.state.played} /> */}
@@ -557,10 +744,9 @@ class SubtitleEditPage extends React.Component {
                         </Button>
                     </Row>
                 </div>
-                <div className="subtitle-area"
-                    style={linkStyle} onMouseEnter={this.toggleHover} onMouseLeave={this.toggleHover}>
+                <div className="subtitle-area" style={{ display: this.state.display }}>
                     {this.state.subtitle.map((item, idx) => (
-                        <SubtitleContent key={idx} data={item} handleEditSubtitle={this.handleEditSubtitle} />
+                        <SubtitleContent key={idx} data={item} handleEditSubtitle={this.handleEditSubtitle} latexTransferData={this.state.latexTransferData} currentSubtitle={this.state.currentSubtitle} handleEditStart={this.handleEditStart} handleEditing={this.handleEditing} handleEditEnd={this.handleEditEnd} />
                     ))}
 
                 </div>

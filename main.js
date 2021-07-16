@@ -1,11 +1,11 @@
 // Main Process
 // ipcMain用于在渲染进程和主进程之间发送和处理消息
-const { app, BrowserWindow, ipcMain, Notification, Menu, Tray, ipcRenderer } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, Menu, Tray, ipcRenderer, clipboard } = require('electron');
 const main = require('electron-reload');
 require('@electron/remote/main').initialize()
 const path = require('path');
 const isDev = !app.isPackaged;
-const Store = require('electron-store')
+const Store = require('electron-store');
 
 const dockIcon = path.join(__dirname, 'assets', 'images', 'react_app_logo.png');
 const trayIcon = path.join(__dirname, 'assets', 'images', 'react_icon.png');
@@ -170,6 +170,22 @@ app.whenReady()
         const splash = createSplashWindow("splash.html");
         mainWindow = createWindow();
 
+        mainWindow.webContents.on('crashed', (event) => {
+            // if(mainWindow.isDestroyed()) {
+            //     app.relaunch()
+            //     app.exit(0);
+            // }else{
+            //     BrowserWindow.getAllWindows().forEach((w) => {
+            //         if(w.id !== mainWindow.id){
+            //             w.destroy()
+            //         }
+            //     })
+            // }
+            // mainWindow.reload()
+            app.relaunch()
+            app.quit()
+        })
+
         mainWindow.once('ready-to-show', () => {
             // splash.destroy();
             // mainApp.show();
@@ -188,6 +204,8 @@ app.whenReady()
 //     app.quit();
 // })
 // console.log("I AM MAIN!")
+
+
 
 ipcMain.on('OpenedVideo', (event, arg) => {
     console.log(arg) // prints "ping"
@@ -373,12 +391,20 @@ let app_menu = [
             {
                 label: "Paste",
                 accelerator: "CmdOrCtrl+V",
-                selector: "paste:"
+                selector: "paste:",
             },
             {
                 label: "Select All",
                 accelerator: "CmdOrCtrl+A",
                 selector: "selectAll:"
+            },
+            {
+                label: "LaTeX tag generation",
+                accelerator: 'CmdOrCtrl+L',
+                click: () => {
+                    mainWindow.webContents.send('LatexTransfer')
+                    // document.execCommand('copy')
+                }
             }
         ]
     }, {

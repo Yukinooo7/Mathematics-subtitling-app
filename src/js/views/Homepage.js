@@ -14,6 +14,7 @@ import { HashRouter, Link, Route } from 'react-router-dom';
 import SideBarList from '../components/SideBarComponent';
 import HeaderComponent from '../components/HeaderComponent';
 import VideoPlayer from './SubtitleEditPage';
+import { Hidden } from '@material-ui/core';
 
 
 const { BrowserWindow, getCurrentWindow, dialog } = require('@electron/remote')
@@ -67,17 +68,24 @@ export default function HomePage() {
     return (
         // <Provider store={store}>
         <HashRouter>
-            <Layout>
+            <Layout style={{overflow:'hidden'}}>
                 <SideBarList url={filePath} />
-                <Layout className="site-layout">
+                <Layout className="site-layout" >
                     <HeaderComponent />
                     {/* <VideoPlayer /> */}
                     <Content
                         className="site-layout-background"
                         style={{
-                            margin: '24px 16px',
-                            padding: 24,
-                            minHeight: 280,
+                            marginLeft: '24px',
+                            marginTop: '24px',
+                            marginRight: '24px',
+                            overflow: 'hidden',
+                            // marginBottom: '24px',
+                            // padding: 24,
+                            // minHeight: 280,
+                            // backgroundColor:'black',
+                            minWidth: 1320,
+                            minHeight: 742.5,
                         }}
                     >
                         <div>
@@ -89,9 +97,9 @@ export default function HomePage() {
                     </Content>
                     {/* <SearchBar history={this.props.history} /> */}
 
-                    <Footer style={{ textAlign: 'center' }}>
+                    {/* <Footer style={{ textAlign: 'center' }}>
                         Mathematics Subtitling App @2021 Created By Lingyun Chen
-                    </Footer>
+                    </Footer> */}
                 </Layout>
 
             </Layout>

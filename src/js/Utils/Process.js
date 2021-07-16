@@ -1,5 +1,8 @@
 // Some functions to process data
 
+import path, { resolve } from 'path'
+const { PythonShell } = require('python-shell')
+
 export function getRealTime(time) {
 
     var hours = parseInt(time[0])
@@ -11,7 +14,8 @@ export function getRealTime(time) {
 }
 
 export function getCurrentSubtitle(data, currentTime) {
-    var currentSubtitle = ""
+    var currentSubtitle = []
+    var currentID = ""
     for (var i = 0; i < data.length; i++) {
         var time_1 = data[i].timestamp_1.split(":")
         var time_2 = data[i].timestamp_2.split(":")
@@ -19,7 +23,7 @@ export function getCurrentSubtitle(data, currentTime) {
         var subtitle_time_2 = getRealTime(time_2)
 
         if (currentTime > subtitle_time_1 && currentTime <= subtitle_time_2) {
-            currentSubtitle = data[i].content
+            currentSubtitle = data[i]
             return currentSubtitle
         }
     }
@@ -129,4 +133,28 @@ export function processSubtitle(data) {
     // console.log(all_subtitles)
 
     return all_subtitles
+}
+
+
+export function srt2html(data) {
+    // console.log(data)
+    var subtitleList = []
+    for (var i = 0; i < data.length; i++) {
+        subtitleList.push(data[i].content)
+        // var fragment = data[i]
+        // console.log(data[i].content)
+    }
+    subtitleList = subtitleList.join("\n")
+    PythonShell.run("onlySrt2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: '', args: [subtitleList] }, function (err, results) {
+        if (err) throw err
+        // data[0].content = results[0]
+        // console.log(results.length)
+        for (var i=0; i< data.length; i++ ){
+            data[i].content = results[i]
+        }
+        // console.log(data)
+    })
+
+    // console.log(data)
+    return data
 }

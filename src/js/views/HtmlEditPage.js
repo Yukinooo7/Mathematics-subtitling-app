@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import ReactPlayer from 'react-player'
 import { Button, Row, Progress, Card, Table } from 'antd'
+import Tooltip from '@material-ui/core/Tooltip';
+import SubtitlesIcon from '@material-ui/icons/Subtitles';
+import FolderIcon from '@material-ui/icons/Folder';
 
 import SubtitleContent from '../components/SubtitleContent'
 import SaveArea from '../components/SaveArea'
+import BasicInfoComponent from '../components/BasicInfoComponent'
 import Duration from '../Utils/Duration'
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron'
+
+// import html_icon from '../icons/html.svg'
+import * as consts from '../Utils/consts'
 
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 
@@ -22,6 +29,17 @@ let fs = require('fs')
 const reader = new FileReader();
 const { PythonShell } = require('python-shell')
 let test = []
+
+function processData(data) {
+
+    if (data != undefined) {
+
+        return data.split("/").pop()
+
+    } else {
+        return "None"
+    }
+}
 
 class HtmlEditPage extends React.Component {
 
@@ -44,13 +62,15 @@ class HtmlEditPage extends React.Component {
         muted: true,
         playedSeconds: 0,
         subtitle: [],
-        videoName: "None",
+        videoName: 'None',
         editTime: "New File",
         subtitle_name: "None",
         display: 'none',
         display_button: 'block',
+        displaySubtitle: 'none',
         latex_display_content: "",
         currentSubtitle: "",
+        ifShowVideo: false,
     }
 
     handlePlayPause = () => {
@@ -116,8 +136,9 @@ class HtmlEditPage extends React.Component {
             // dispatch({type: "SHOW_VIDEO"})
             // console.log(cancel)
             // console.log(result)
+            console.log(this.props.filePath)
             var video_name = this.props.filePath[0].split("/").pop()
-            // console.log(video_name)
+            console.log(video_name)
             var subtitle_name = result.filePaths[0].split("/").pop()
             // console.log(subtitle_name)
             // console.log(result.filePaths)
@@ -140,6 +161,7 @@ class HtmlEditPage extends React.Component {
                 subtitle_name: subtitle_name,
                 display: 'block',
                 display_button: 'none',
+                displaySubtitle: 'block',
                 videoName: video_name
             })
         });
@@ -174,7 +196,9 @@ class HtmlEditPage extends React.Component {
         // console.log(this.props)
         // console.log(this.props.filePath)
         // console.log(this.props.hasVideo)
-        // console.log(this.state.subtitle_url)
+        // console.log(this.state.url)
+
+
 
         fs.readFile(this.state.subtitle_url, 'utf8', (err, data) => {
             if (err) {
@@ -223,6 +247,14 @@ class HtmlEditPage extends React.Component {
             this.player.seekTo(this.state.playedSeconds)
             console.log(this.player)
         }
+        if (this.props.filePath != "" && !this.state.ifShowVideo) {
+            console.log(this.props.filePath)
+            this.setState({
+                ifShowVideo: true,
+                videoName: this.props.filePath[0].split("/").pop()
+            })
+        }
+        // console.log(this.props.filePath)
         // if (this.state.hasSubtitle) {
         // let srtURL = URL.createObjectURL(this.state.subtitle_url)
         // reader.readAsText(this.state.subtitle_url)
@@ -231,7 +263,6 @@ class HtmlEditPage extends React.Component {
         // }
         // console.log("sdas")
         // console.log(this.state.subtitle_url)
-
         // }
         // console.log(this.state.subtitle)
     }
@@ -248,6 +279,9 @@ class HtmlEditPage extends React.Component {
 
         ipcRenderer.removeListener("MuteVideo", this.handleMute)
 
+        this.setState({
+            ifShowVideo: false
+        })
         // console.log(ipcRenderer.removeListener('', () => { }));
         // ipcRenderer.removeListener("CurrentFile", (event, message) => {
         //     // console.log(message)
@@ -341,6 +375,20 @@ class HtmlEditPage extends React.Component {
 
     }
 
+    handleDisplaySubtitle = () => {
+        if(this.state.displaySubtitle == 'none'){
+            console.log(this.state.displaySubtitle)
+            this.setState({
+                displaySubtitle: 'block'
+            })
+        }else {
+            console.log(this.state.displaySubtitle)
+            this.setState({
+                displaySubtitle: 'none'
+            })
+        }
+    }
+
     render() {
         var linkStyle;
         if (this.state.hover) {
@@ -366,64 +414,12 @@ class HtmlEditPage extends React.Component {
                     onProgress={this.handleProgress}
                     onDuration={this.handleDuration}
                 />
-                <div className='currentSubtitle'>
+                <div className='currentSubtitle' style={{display: this.state.displaySubtitle}}>
                     {this.state.currentSubtitle}
                 </div>
 
+                <BasicInfoComponent videoName={this.state.videoName} subtitle_name={this.state.subtitle_name} editTime={this.state.editTime} html_description={consts.html_description} />
 
-                <div className="basic-info-area"
-                    style={{ display: this.state.display }}>
-                    <h4 id='video_info_title'>Video Information</h4>
-                    {/* <p>Video title: </p>
-                    <p>Subtitle File name: </p>
-                    <p>Last edited time:  </p> */}
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th>Video file: </th>
-                                <td>{this.state.videoName}</td>
-                            </tr>
-                            <tr>
-                                <th>Subtitle file: </th>
-                                <td>{this.state.subtitle_name}</td>
-                            </tr>
-                            <tr>
-                                <th>Last edit time: </th>
-                                <td>{this.state.editTime}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <h4 id='video_info_title'
-                        style={{
-                            marginTop: "5px",
-                        }}
-                    >Current Shortcuts</h4>
-
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th>Command + O: </th>
-                                <td>Open new video</td>
-                            </tr>
-                            <tr>
-                                <th>Command + S: </th>
-                                <td>Save the edited subtitle</td>
-                            </tr>
-                            <tr>
-                                <th>Command + G: </th>
-                                <td>Reset the subtitle</td>
-                            </tr>
-                            <tr>
-                                <th>Command + P: </th>
-                                <td>Play/Pause the video</td>
-                            </tr>
-                            <tr>
-                                <th>Command + M: </th>
-                                <td>Mute/Unmute the video</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
 
                 <div className="preview-latex-area"
                     style={{ display: this.state.display }}>
@@ -456,16 +452,32 @@ class HtmlEditPage extends React.Component {
 
                 </div>
 
-                <div className='function-area'>
+                <div className='function-area' >
+                    <Row>
+                        <Tooltip title="Open Subtitle" placement="top" arrow>
+                            <FolderIcon id="open_subtitle" onClick={this.handleOpenSubtitles}  fontSize='large' />
+                        </Tooltip>
+                        <Tooltip title="Show/Close Subtitles" placement="top" arrow>
+                            <SubtitlesIcon id="open_subtitle" fontSize='large' onClick={this.handleDisplaySubtitle}/>
+                        </Tooltip>
 
-                    <Button id="open_subtitle"
-                        onClick={this.handleOpenSubtitles}>Open Subtitles</Button>
+                        {/* <Button id="open_subtitle"
+                        onClick={this.generateHtmlFile}>Generate HTML file</Button> */}
+                        <Tooltip title="Generate Html file" placement="top" arrow>
+                            <img src="assets/images/html.svg" id="open_subtitle" onClick={this.generateHtmlFile}  style={{ width: '30px' }}></img>
 
-                    <Button id="open_subtitle"
-                        onClick={this.generateHtmlFile}>Generate HTML file</Button>
+                        </Tooltip>
 
-                    <Button id="open_subtitle"
-                        onClick={this.handleAlignTime}>Align timestamps</Button>
+                        <Tooltip title="Align Timestamps" placement="top" arrow>
+                            <img src="assets/images/alignTime.svg" id="open_subtitle" onClick={this.handleAlignTime} style={{ width: '30px' }}></img>
+
+                        </Tooltip>
+                    </Row>
+
+                    {/* <Button id="open_subtitle"
+                        onClick={this.handleAlignTime}>Align timestamps</Button> */}
+
+
 
                     {/* <Button 
                         onClick={this.handlePlayPause}

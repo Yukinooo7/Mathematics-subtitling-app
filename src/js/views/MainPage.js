@@ -104,7 +104,7 @@ export default function MainPage(props) {
             // let filePaths = result.filePaths
             // console.log(result)
             if (!cancel) {
-                setFilePath(result.filePaths)
+                // setFilePath(result.filePaths)
                 console.log(result.filePaths)
                 ipcRenderer.send("openNewVideo", result.filePaths)
 
@@ -114,8 +114,6 @@ export default function MainPage(props) {
             }
             console.log(cancel)
         });
-
-        // history.push('/EditPage')
     }
 
     if (!hasVideo) {
@@ -138,7 +136,7 @@ export default function MainPage(props) {
                     // console.log(file)
                     ipcRenderer.send("openNewVideo", file)
                 }}>
-                <VideoPlayer filePath={filePaths} hasVideo={hasVideo} />
+                <VideoPlayer filePath={filePaths} hasVideo={hasVideo} openVideo={goTo}/>
             </div>
         )
 

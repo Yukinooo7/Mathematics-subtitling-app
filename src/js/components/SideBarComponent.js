@@ -98,20 +98,20 @@ export default function SideBarComponent(url) {
                         Subtitle Editor Page
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="2" icon={<EditOutlined />} onClick={() => { dispatch({ type: "key2" }) }}>
+                {/* <Menu.Item key="2" icon={<EditOutlined />} onClick={() => { dispatch({ type: "key2" }) }}>
                     <Link to={{ pathname: '/HtmlPage', state: { filePath: filePath } }} onClick={() => {
 
                         dispatch({ type: "HIDE_VIDEO" })
                     }}>
                         Html Editor Page
                     </Link>
-                </Menu.Item>
-                <Menu.Item key="3" icon={<HistoryOutlined />} onClick={() => { dispatch({ type: "key3" }) }}>
+                </Menu.Item> */}
+                <Menu.Item key="2" icon={<HistoryOutlined />} onClick={() => { dispatch({ type: "key2" }) }}>
                     <Link to="/HistoryPage">
                         History
                     </Link>
                 </Menu.Item>
-                <Menu.Item key="4" icon={<SettingOutlined />} onClick={() => { dispatch({ type: "key4" }) }}>
+                <Menu.Item key="3" icon={<SettingOutlined />} onClick={() => { dispatch({ type: "key3" }) }}>
                     <Link to="/SettingPage">
                         Setting
                     </Link>
