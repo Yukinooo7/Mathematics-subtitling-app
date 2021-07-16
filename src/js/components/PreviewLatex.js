@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { Button } from 'antd';
+import { clipboard } from 'electron';
 
 
 import { MathJax, MathJaxContext } from "better-react-mathjax";
@@ -26,12 +28,19 @@ export default function PreviewLatex(props) {
                 <MathJaxContext version={3}>
 
                     <MathJax inline dynamic>
-                        <div style={{ width: '80%', height: '20%', backgroundColor: 'white', overflow: 'scroll' }}>{`\\( ${latexContent} \\)`}</div>
+                        <div style={{ width: '80%', height: '20%', backgroundColor: 'white', overflow: 'hidden' }}>{`\\( ${latexContent} \\)`}</div>
                     </MathJax>{" "}
 
                 </MathJaxContext>
 
             </div>
+
+            <Button className='latex-show-area' style={{marginTop:'20px'}} size={'small'} onClick={()=> {
+                const equation = `\\( ${latexContent} \\)`
+                clipboard.writeText(equation)
+            }}>
+                Copy equation with LaTeX delimiter
+            </Button>
 
         </div>
     )
