@@ -73,7 +73,12 @@ export default function BasicInfoComponent(props) {
                 onClick={changeVideoNameDisplay}
             >Current page description</h4>
             <span style={{ display: displayDescription }}>
-                {props.html_description}
+                {props.latexEditMode
+                    ?
+                    consts.html_description
+                    :
+                    consts.subtitle_description
+                }
             </span>
 
 
@@ -103,7 +108,7 @@ export default function BasicInfoComponent(props) {
                         <td>Play/Pause the video</td>
                     </tr>
                     <tr>
-                        <th>Command + M: </th>
+                        <th>Command + N: </th>
                         <td>Mute/Unmute the video</td>
                     </tr>
                     {props.latexEditMode

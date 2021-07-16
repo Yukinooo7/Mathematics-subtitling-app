@@ -11,6 +11,7 @@ export default function SubtitleContent(props) {
     const [timestamp_1, setTime1] = useState(props.data.timestamp_1)
     const [timestamp_2, setTime2] = useState(props.data.timestamp_2)
     const [editColor, setEditColor] = useState('white')
+    const [contentColor, setContentColor] = useState('white')
     // result = props.data
     // console.log(props)
 
@@ -24,13 +25,21 @@ export default function SubtitleContent(props) {
     // console.log(this.props)
     // console.log(props)
     useEffect(() => {
+        // console.log(props.searchResultList)
+        if(props.searchResultList == props.data.id){
+            // console.log(props.data.id)
+            setContentColor('#FFF790')
+        }else{
+            setContentColor('white')
+        }
+    }, [props.searchResultList])
+    useEffect(() => {
         if(props.currentSubtitle == props.data.content){
             // console.log("Yes!")
             // console.log(props.data.id)
             // console.log(editColor)
             setEditColor('dodgerblue')
         }else {
-
             setEditColor('white')
         }
     }, [props.currentSubtitle])
@@ -46,7 +55,6 @@ export default function SubtitleContent(props) {
     }, [props.latexTransferData[2]])
 
     useEffect(() => {
-
         setContent(props.data.content)
         console.log("b")
     }, [props.data.content])
@@ -120,7 +128,7 @@ export default function SubtitleContent(props) {
                     value={timestamp_2} onChange={handleChange}>
                 </textarea>
                 <textarea className='subtitle-content' id={props.data.id}
-                    value={content} onChange={handleChange} onBlur={handleBlue} onFocus={handleFocus} >
+                    value={content} onChange={handleChange} onBlur={handleBlue} onFocus={handleFocus} style={{backgroundColor:contentColor}}>
                 </textarea>
             </Row>
         </div>

@@ -128,6 +128,7 @@ def singleSubtitleProcess(line):
 
 
 subtitle = sys.argv[1].split("\n")
+# print(subtitle)
 
 for item in subtitle:
     item = singleSubtitleProcess(item)

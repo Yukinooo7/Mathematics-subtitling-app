@@ -14,7 +14,7 @@ import BasicInfoComponent from '../components/BasicInfoComponent'
 import PreviewLatex from '../components/PreviewLatex';
 import Duration from '../Utils/Duration'
 import { ipcRenderer, clipboard } from 'electron'
-
+import _ from 'lodash'
 
 // import html_icon from '../icons/html.svg'
 import * as consts from '../Utils/consts'
@@ -81,6 +81,10 @@ class SubtitleEditPage extends React.Component {
         allowScroll: true,
         hasTransferred: false,
         latexTransferData: [1, "none", "none"],
+        original_subtitle: [],
+        searchInput: "none",
+        searchResultList: ['none'],
+        currentResult: "none",
     }
 
     handlePlayPause = () => {
@@ -148,45 +152,39 @@ class SubtitleEditPage extends React.Component {
             ]
         }).then(result => {
             let cancel = result.canceled
-            console.log(result)
-            // setNewVideo(true)
-            // let filePaths = result.filePaths
-            // console.log(result.filePaths)
-            // setFilePath(result.filePaths)
-            // console.log(result.filePaths)
-            // ipcRenderer.send("openNewVideo", result.filePaths)
-            // dispatch({type: "SHOW_VIDEO"})
-            // console.log(cancel)
-            // console.log(result)
-            // console.log(this.props.filePath)
-            var video_name = this.props.filePath[0].split("/").pop()
-            // console.log(video_name)
-            var subtitle_name = result.filePaths[0].split("/").pop()
-            // console.log(subtitle_name)
-            // console.log(result.filePaths)
-            fs.readFile(result.filePaths[0], 'utf8', (err, data) => {
-                if (err) {
-                    console.log(err)
-                    return
-                }
+            if (!cancel) {
+                // console.log(result)
+                var video_name = this.props.filePath[0].split("/").pop()
+                // console.log(video_name)
+                var subtitle_name = result.filePaths[0].split("/").pop()
+                // console.log(subtitle_name)
+                // console.log(result.filePaths)
+                fs.readFile(result.filePaths[0], 'utf8', (err, data) => {
+                    if (err) {
+                        console.log(err)
+                        return
+                    }
 
-                this.setState({
-                    subtitle: ProcessFunctions.processSubtitle(data)
+                    this.setState({
+                        subtitle: ProcessFunctions.processSubtitle(data)
+                    })
+                    // const newState = {...this.state, original_subtitle: ProcessFunctions.processSubtitle(data)}
+                    // this.setState(newState)
+                    test = _.cloneDeep(ProcessFunctions.processSubtitle(data))
+                    // console.log(data)
                 })
-                test = ProcessFunctions.processSubtitle(data)
-                // console.log(data)
-            })
-            // console.log(test)
-            this.setState({
-                subtitle_url: result.filePaths[0],
-                hasSubtitle: true,
-                playing: true,
-                subtitle_name: subtitle_name,
-                display: 'block',
-                display_button: 'none',
-                displaySubtitle: 'block',
-                videoName: video_name
-            })
+                // console.log(test)
+                this.setState({
+                    subtitle_url: result.filePaths[0],
+                    hasSubtitle: true,
+                    playing: true,
+                    subtitle_name: subtitle_name,
+                    display: 'block',
+                    display_button: 'none',
+                    displaySubtitle: 'block',
+                    videoName: video_name
+                })
+            }
         });
 
     }
@@ -387,20 +385,27 @@ class SubtitleEditPage extends React.Component {
                 defaultPath: this.state.subtitle_url,
                 filters: [{ name: "All files", extensions: ["*"] }]
             }).then((result) => {
+
+                let cancel = result.canceled
+                if (!cancel) {
+                    srtFile = ProcessFunctions.generateSrtFile(this.state.subtitle)
+                    fs.writeFileSync(result.filePath, srtFile)
+                }
                 // console.log(result)
-                srtFile = ProcessFunctions.generateSrtFile(this.state.subtitle)
-                fs.writeFileSync(result.filePath, srtFile)
             }).catch((req) => {
                 console.log(req)
             })
 
+
     }
 
     handleResetSubtitle = () => {
-
-        const original = test
+        // console.log(test)
+        // const original = test
+        var new_data = _.cloneDeep(test)
         this.setState({
-            subtitle: original
+            subtitle: new_data,
+            hasTransferred: false,
         })
     }
 
@@ -437,6 +442,32 @@ class SubtitleEditPage extends React.Component {
 
     // }
 
+    saveHtmlFile = () => {
+        let htmlPath = this.state.subtitle_url.replace(".srt", ".html")
+        // console.log(this.state.subtitle_url)
+        // console.log(htmlPath)
+
+        var latexSubtitle = ProcessFunctions.generateSrtFile(this.state.subtitle)
+        dialog.showSaveDialog(
+            {
+                title: "Save as",
+                defaultPath: htmlPath,
+                filters: [{ name: "All files", extensions: ["html"] }]
+            }).then((result) => {
+                let cancel = result.canceled
+                if (!cancel) {
+                    PythonShell.run("latex2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: '', args: [latexSubtitle, result.filePath] }, function (err, results) {
+                        if (err) throw err
+                        // data[0].content = results[0]
+                        // console.log(results)
+                    })
+                }
+            }).catch((req) => {
+                console.log(req)
+            })
+
+    }
+
     generateHtmlFile = () => {
 
         if (!this.state.hasTransferred) {
@@ -446,22 +477,30 @@ class SubtitleEditPage extends React.Component {
             })
 
         }
+        console.log(this.state.subtitle)
     }
 
     handleAlignTime = () => {
         this.setState({
-            // subtitle: ProcessFunctions.alignTimestamp(this.state.subtitle)
-            subtitle: ProcessFunctions.srt2html(this.state.subtitle)
+            subtitle: ProcessFunctions.alignTimestamp(this.state.subtitle)
         })
 
     }
 
     handleLatexModeChange = () => {
+
+        if (!this.state.latexEditMode) {
+            const editedSubtitle = _.cloneDeep(this.state.subtitle)
+            test =  editedSubtitle
+        }else{
+            this.handleResetSubtitle()
+        }
         this.setState({
             latexEditMode: !this.state.latexEditMode,
             displaySubtitle: 'block',
             displayLatexSubtitle: 'block',
         })
+
     }
 
     handleDisplaySubtitle = () => {
@@ -492,7 +531,46 @@ class SubtitleEditPage extends React.Component {
                 displayLatexSubtitle: 'none',
             })
         }
+    }
 
+    handleSearch = (e) => {
+        // console.log(e.target.value)
+        if(e.target.value == ''){
+            console.log("empty")
+            this.setState({
+                searchInput: "none",
+                searchResultList: ['none']
+            })
+        }
+    }
+
+    handleEnterKey = (e) => {
+        // console.log(e.nativeEvent.keyCode)
+        if(e.nativeEvent.keyCode == 13){
+            e.preventDefault();
+            var temp
+            if(this.state.searchInput == e.target.value){
+                temp = this.state.searchResultList
+            }else{
+                temp = ProcessFunctions.searchWord(this.state.subtitle, e.target.value)
+            }
+            var firstResult = temp.shift()
+            const currentSubtitle =this.state.subtitle[parseInt(firstResult)-1]
+            this.handleEditStart(currentSubtitle)
+            if(firstResult != undefined){
+                var scrollToSubtitle = document.getElementById(`subtitle${firstResult}`)
+                scrollToSubtitle.scrollIntoView(true);
+            }
+            this.setState({
+                searchInput: e.target.value,
+                searchResultList: temp,
+                allowScroll: false,
+                currentResult: firstResult,
+                currentSubtitle: currentSubtitle.content,
+            })
+            // console.log(ProcessFunctions.searchWord(this.state.subtitle, e.target.value))
+
+        }
     }
 
     handleAllowScroll = (boolean) => {
@@ -599,7 +677,7 @@ class SubtitleEditPage extends React.Component {
 
                 }
 
-                <BasicInfoComponent videoName={this.state.videoName} subtitle_name={this.state.subtitle_name} editTime={this.state.editTime} html_description={consts.subtitle_description} latexEditMode={this.state.latexEditMode}/>
+                <BasicInfoComponent videoName={this.state.videoName} subtitle_name={this.state.subtitle_name} editTime={this.state.editTime} latexEditMode={this.state.latexEditMode} />
                 {this.state.latexEditMode ?
                     <PreviewLatex display={this.state.display} />
                     :
@@ -645,21 +723,11 @@ class SubtitleEditPage extends React.Component {
                         {this.state.latexEditMode ?
                             <Tooltip title="Generate math subtitles" placement="top" arrow>
                                 <img src="assets/images/html.svg" id="open_subtitle" onClick={this.generateHtmlFile} style={{ width: '30px' }}></img>
-
                             </Tooltip>
                             :
                             ""
                         }
-                        {/* <Button onClick={() => {
-                            // console.log(this.state.subtitle)
-                            if(!this.state.hasTransferred){
-                                this.setState({
-                                    subtitle:ProcessFunctions.srt2html(this.state.subtitle),
-                                    hasTransferred: true,
-                                })
-
-                            }
-                        }}>
+                        {/* <Button onClick={this.saveHtmlFile}>
                             Generate Math Subtitle
                         </Button> */}
                         <Tooltip title="Go to LaTeX Edit Page" placement="top" arrow>
@@ -712,9 +780,10 @@ class SubtitleEditPage extends React.Component {
                             borderLeft: 'none',
                             borderRight: 'none',
                             resize: 'none',
+                            overflow: 'hidden',
                             // borderRadius: "10px",
                             // color: "black",
-                        }} type="text" placeholder="Search Captions" />
+                        }} type="text" placeholder="Search Captions" onKeyPress={this.handleEnterKey} onChange={this.handleSearch}/>
                         <div style={{
                             marginTop: '2%',
                             marginLeft: '10%',
@@ -734,19 +803,26 @@ class SubtitleEditPage extends React.Component {
                             onClick={this.handleResetSubtitle}>
                             Reset changes
                         </Button>
-                        <Button
-                            style={{
-                                marginTop: "1%",
-                                marginLeft: "2%",
-                            }}
-                            onClick={this.saveEditSubtitle}>
-                            Save
-                        </Button>
+                        <Tooltip title={this.state.latexEditMode ? "Save Edited Html" : "Save Edited Subtitle"} placement="top" arrow>
+                            <Button
+                                style={{
+                                    marginTop: "1%",
+                                    marginLeft: "2%",
+                                }}
+                                onClick={this.state.latexEditMode
+                                    ?
+                                    this.saveHtmlFile
+                                    :
+                                    this.saveEditSubtitle}>
+                                Save
+                            </Button>
+
+                        </Tooltip>
                     </Row>
                 </div>
                 <div className="subtitle-area" style={{ display: this.state.display }}>
                     {this.state.subtitle.map((item, idx) => (
-                        <SubtitleContent key={idx} data={item} handleEditSubtitle={this.handleEditSubtitle} latexTransferData={this.state.latexTransferData} currentSubtitle={this.state.currentSubtitle} handleEditStart={this.handleEditStart} handleEditing={this.handleEditing} handleEditEnd={this.handleEditEnd} />
+                        <SubtitleContent key={idx} data={item} handleEditSubtitle={this.handleEditSubtitle} latexTransferData={this.state.latexTransferData} currentSubtitle={this.state.currentSubtitle} handleEditStart={this.handleEditStart} handleEditing={this.handleEditing} handleEditEnd={this.handleEditEnd} searchResultList={this.state.currentResult}/>
                     ))}
 
                 </div>

@@ -356,7 +356,7 @@ let app_menu = [
                 }
             }, {
                 label: "Mute Video",
-                accelerator: "CmdOrCtrl+M",
+                accelerator: "CmdOrCtrl+ N",
                 click: () => {
                     mainWindow.webContents.send("MuteVideo")
                 }

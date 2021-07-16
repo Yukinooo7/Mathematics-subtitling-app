@@ -158,3 +158,31 @@ export function srt2html(data) {
     // console.log(data)
     return data
 }
+
+export function saveHtml(data) {
+    var latexSubtitle = generateSrtFile(data)
+    console.log(latexSubtitle.split('\n\n').length)
+    PythonShell.run("latex2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: '', args: [latexSubtitle] }, function (err, results) {
+        if (err) throw err
+        // data[0].content = results[0]
+        console.log(results)
+        // for (var i=0; i< data.length; i++ ){
+        //     data[i].content = results[i]
+        // }
+        // console.log(data)
+    })
+}
+
+export function searchWord(data, input) {
+    // console.log(data)
+    // console.log(input)
+    var resultList = []
+    for(var i=0; i< data.length; i++){
+        if(data[i].content.includes(input)){
+            // console.log(data[i].id)
+            resultList.push(data[i].id)
+        }
+    }
+
+    return resultList
+}
