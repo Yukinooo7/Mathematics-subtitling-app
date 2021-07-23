@@ -113,6 +113,7 @@ export default function SubtitleContent(props) {
         // props.handleAllowScroll(false)
         // console.log(props.latexTransferData)
         props.handleEditing(props.data)
+        // console.log(props.data.content)
         // console.log(props.data)
     }
     

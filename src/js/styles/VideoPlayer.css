@@ -250,6 +250,10 @@ td {
     background-color: #E5E5E5;
 }
 
+.setting-info {
+    margin-left: 5px
+}
+
 #subtitle-fragment-1 {
     /* background-color: #ffffff; */
     /* background-color: #000; */

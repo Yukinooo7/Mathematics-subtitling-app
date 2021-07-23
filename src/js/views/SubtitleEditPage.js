@@ -36,16 +36,6 @@ const { PythonShell } = require('python-shell')
 var test = []
 // let latexTransferData = [1, "none", "none"]
 
-function processData(data) {
-
-    if (data != undefined) {
-
-        return data.split("/").pop()
-
-    } else {
-        return "None"
-    }
-}
 
 class SubtitleEditPage extends React.Component {
 
@@ -85,6 +75,7 @@ class SubtitleEditPage extends React.Component {
         searchInput: "none",
         searchResultList: ['none'],
         currentResult: "none",
+        pythonPath: ""
     }
 
     handlePlayPause = () => {
@@ -247,9 +238,20 @@ class SubtitleEditPage extends React.Component {
             ipcRenderer.on("MuteVideo", this.handleMute)
 
             ipcRenderer.on("LatexTransfer", this.handleLatexTransfer)
+            
+
+            ipcRenderer.send('sendPythonPath')
+            ipcRenderer.on('pythonPath', this.getPythonPath)
 
 
         }
+    }
+
+    getPythonPath = (event, message) => {
+        // console.log(message)
+        this.setState({
+            pythonPath: message
+        })
     }
 
     handleLatexTransfer = () => {
@@ -334,6 +336,9 @@ class SubtitleEditPage extends React.Component {
 
         ipcRenderer.removeListener("LatexTransfer", this.handleLatexTransfer)
 
+
+        ipcRenderer.removeListener('pythonPath', this.getPythonPath)
+
         this.setState({
             ifShowVideo: false
         })
@@ -395,8 +400,6 @@ class SubtitleEditPage extends React.Component {
             }).catch((req) => {
                 console.log(req)
             })
-
-
     }
 
     handleResetSubtitle = () => {
@@ -456,7 +459,7 @@ class SubtitleEditPage extends React.Component {
             }).then((result) => {
                 let cancel = result.canceled
                 if (!cancel) {
-                    PythonShell.run("latex2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: '', args: [latexSubtitle, result.filePath] }, function (err, results) {
+                    PythonShell.run("latex2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath:this.state.pythonPath, args: [latexSubtitle, result.filePath] }, function (err, results) {
                         if (err) throw err
                         // data[0].content = results[0]
                         // console.log(results)
@@ -474,10 +477,11 @@ class SubtitleEditPage extends React.Component {
             this.setState({
                 subtitle: ProcessFunctions.srt2html(this.state.subtitle),
                 hasTransferred: true,
+                // currentSubtitle: ProcessFunctions.srt2html(this.state.subtitle)[this.state.firstResult]
             })
 
         }
-        console.log(this.state.subtitle)
+        // console.log(this.state.subtitle)
     }
 
     handleAlignTime = () => {
@@ -583,6 +587,7 @@ class SubtitleEditPage extends React.Component {
     handleEditing = (data) => {
 
         this.handleAllowScroll(false)
+        // console.log(data.content)
         this.setState({
             // playing: false,
             currentSubtitle: data.content
@@ -597,7 +602,7 @@ class SubtitleEditPage extends React.Component {
         if (realTime < 1) {
             realTime = 0
         }
-        this.player.seekTo(realTime)
+        this.player.seekTo(realTime+1)
         // console.log(this.player.getCurrentTime())
         // console.log(this.state.playing)
 
@@ -623,7 +628,7 @@ class SubtitleEditPage extends React.Component {
             // playing: true,
             allowScroll: true,
         })
-        console.log(this.state.playing)
+        // console.log(this.state.playing)
 
     }
 
@@ -676,7 +681,6 @@ class SubtitleEditPage extends React.Component {
                     </div>
 
                 }
-
                 <BasicInfoComponent videoName={this.state.videoName} subtitle_name={this.state.subtitle_name} editTime={this.state.editTime} latexEditMode={this.state.latexEditMode} />
                 {this.state.latexEditMode ?
                     <PreviewLatex display={this.state.display} />
@@ -816,7 +820,6 @@ class SubtitleEditPage extends React.Component {
                                     this.saveEditSubtitle}>
                                 Save
                             </Button>
-
                         </Tooltip>
                     </Row>
                 </div>

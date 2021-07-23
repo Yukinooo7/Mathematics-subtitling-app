@@ -116,7 +116,17 @@ export function processSubtitle(data) {
             processed_subtitles['id'] = subtitle[0]
             processed_subtitles['timestamp_1'] = timestamps[0]
             processed_subtitles['timestamp_2'] = timestamps[1]
-            processed_subtitles['content'] = subtitle[2]
+            if (subtitle.length > 3){
+                var temp = []
+                for (var j = 2; j< subtitle.length; j++){
+                    temp.push(subtitle[j])
+                }
+                temp = temp.join(" ")
+                // console.log(temp)
+                processed_subtitles['content'] = temp
+            }else{
+                processed_subtitles['content'] = subtitle[2]
+            }
             // console.log(timestamp_1)
             // console.log(timestamp_2)
             all_subtitles.push(processed_subtitles)
@@ -142,13 +152,13 @@ export function srt2html(data) {
     for (var i = 0; i < data.length; i++) {
         subtitleList.push(data[i].content)
         // var fragment = data[i]
-        // console.log(data[i].content)
+        // console.log(data[i].content) 
     }
     subtitleList = subtitleList.join("\n")
     PythonShell.run("onlySrt2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: '', args: [subtitleList] }, function (err, results) {
         if (err) throw err
         // data[0].content = results[0]
-        // console.log(results.length)
+        // console.log(results)
         for (var i=0; i< data.length; i++ ){
             data[i].content = results[i]
         }

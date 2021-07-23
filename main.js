@@ -22,6 +22,7 @@ let isRendererReady = false;
 Store.initRenderer();
 
 const store = new Store();
+const python_path = new Store();
 
 // function onVideoFileSelected(filePath) {
 //     if (isRendererReady) {
@@ -220,6 +221,19 @@ ipcMain.on('OpenedVideo', (event, arg) => {
 // app.getPath('userData')
 // store.clear()
 
+ipcMain.on("setPythonPath", (event, message) => {
+    // console.log("Set Python Path!")
+    // console.log(message)
+    python_path.set({'path': message})
+
+    event.reply("pythonPath", python_path.get('path'))
+})
+
+ipcMain.on("sendPythonPath", (event, message)=> {
+    // console.log("Send Python Path!")
+    event.reply("pythonPath", python_path.get('path'))
+})
+
 ipcMain.on("getStore", (event, message) => {
     console.log("GET STORE!")
     console.log(message)
@@ -227,7 +241,7 @@ ipcMain.on("getStore", (event, message) => {
 })
 
 ipcMain.on("removeAllHistory", (event, message) => {
-    console.log("a")
+    // console.log("a")
     store.clear()
     event.reply('refresh', "a")
 })
