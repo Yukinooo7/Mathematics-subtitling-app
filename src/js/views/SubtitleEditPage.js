@@ -16,6 +16,15 @@ import Duration from '../Utils/Duration'
 import { ipcRenderer, clipboard } from 'electron'
 import _ from 'lodash'
 
+import {
+    EditOutlined,
+    HomeOutlined,
+    HistoryOutlined,
+    SettingOutlined,
+    SmileOutlined,
+    PlusCircleOutlined,
+} from '@ant-design/icons';
+
 // import html_icon from '../icons/html.svg'
 import * as consts from '../Utils/consts'
 
@@ -238,7 +247,7 @@ class SubtitleEditPage extends React.Component {
             ipcRenderer.on("MuteVideo", this.handleMute)
 
             ipcRenderer.on("LatexTransfer", this.handleLatexTransfer)
-            
+
 
             ipcRenderer.send('sendPythonPath')
             ipcRenderer.on('pythonPath', this.getPythonPath)
@@ -342,44 +351,13 @@ class SubtitleEditPage extends React.Component {
         this.setState({
             ifShowVideo: false
         })
-        // console.log(ipcRenderer.removeListener('', () => { }));
-        // ipcRenderer.removeListener("CurrentFile", (event, message) => {
-        //     // console.log(message)
-        //     this.setState({
-        //         videoName: message.name,
-        //         editTime: message.date
-        //     })
-        // })
-        // ipcRenderer.removeListener("SaveEditSubtitle", (event, message) => {
-        //     this.saveEditSubtitle();
-        // })
-
-        // ipcRenderer.removeListener("ResetEditSubtitle", (event, message) => {
-        //     this.handleResetSubtitle();
-        // })
-        // console.log('Component Will Unmount!')
     }
 
     handleEditSubtitle = (newTime) => {
-        // console.log(test)
-        // console.log("TIME START!")
-        // console.log(newTime)
         let editID = newTime.id - 1
-        // console.log(editID)
-        // console.log(test[editID])
-        // test[editID] = newTime
-        // console.log(this.state.subtitle)
-        // console.log(test)
         this.setState({
             currentSubtitle: newTime.content
         })
-        // test = newTime
-        // console.log(test[editID])
-        // console.log(this.state.subtitle[editID])
-        // console.log(test)
-        // this.setState({
-        //     subtitle: newTime
-        // })
     }
 
     saveEditSubtitle = (filePaths) => {
@@ -412,38 +390,6 @@ class SubtitleEditPage extends React.Component {
         })
     }
 
-    // generateHtmlFile = () => {
-    //     let htmlPath = this.state.subtitle_url.replace(".srt", ".html")
-    //     // console.log(this.state.subtitle_url)
-    //     // console.log(htmlPath)
-    //     dialog.showSaveDialog(
-    //         {
-    //             title: "Save as",
-    //             defaultPath: htmlPath,
-    //             filters: [{ name: "All files", extensions: ["*"] }]
-    //         }).then((result) => {
-    //             // console.log(result)
-    //             // srtFile = generateSrtFile(this.state.subtitle)
-    //             // fs.writeFileSync(result.filePath, srtFile)
-    //             // pythonPath:'/Users/lingyun/opt/anaconda3/bin/python',
-    //             // console.log(PythonShell.run("srt2html.py", { scriptPath: path.join(__dirname, "utils", ""), option:"/Users/lingyun/opt/anaconda3/bin/python3", args: [this.state.subtitle_url, result.filePath] }, function (err, results) {
-    //             //     if (err) throw err
-    //             //     console.log(results)
-    //             //     console.log()
-    //             // }))
-    //             PythonShell.run("srt2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: '', args: [this.state.subtitle_url, result.filePath] }, function (err, results) {
-    //                 if (err) throw err
-    //                 console.log(results)
-    //                 console.log()
-    //             })
-    //         }).catch((req) => {
-    //             console.log(req)
-    //         })
-    //     // Run Python script
-
-    //     // console.log(this.state.subtitle_url)
-
-    // }
 
     saveHtmlFile = () => {
         let htmlPath = this.state.subtitle_url.replace(".srt", ".html")
@@ -459,7 +405,7 @@ class SubtitleEditPage extends React.Component {
             }).then((result) => {
                 let cancel = result.canceled
                 if (!cancel) {
-                    PythonShell.run("latex2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath:this.state.pythonPath, args: [latexSubtitle, result.filePath] }, function (err, results) {
+                    PythonShell.run("latex2html.py", { scriptPath: path.join(__dirname, "utils", ""), pythonPath: this.state.pythonPath, args: [latexSubtitle, result.filePath] }, function (err, results) {
                         if (err) throw err
                         // data[0].content = results[0]
                         // console.log(results)
@@ -495,8 +441,8 @@ class SubtitleEditPage extends React.Component {
 
         if (!this.state.latexEditMode) {
             const editedSubtitle = _.cloneDeep(this.state.subtitle)
-            test =  editedSubtitle
-        }else{
+            test = editedSubtitle
+        } else {
             this.handleResetSubtitle()
         }
         this.setState({
@@ -539,7 +485,7 @@ class SubtitleEditPage extends React.Component {
 
     handleSearch = (e) => {
         // console.log(e.target.value)
-        if(e.target.value == ''){
+        if (e.target.value == '') {
             console.log("empty")
             this.setState({
                 searchInput: "none",
@@ -550,18 +496,18 @@ class SubtitleEditPage extends React.Component {
 
     handleEnterKey = (e) => {
         // console.log(e.nativeEvent.keyCode)
-        if(e.nativeEvent.keyCode == 13){
+        if (e.nativeEvent.keyCode == 13) {
             e.preventDefault();
             var temp
-            if(this.state.searchInput == e.target.value){
+            if (this.state.searchInput == e.target.value) {
                 temp = this.state.searchResultList
-            }else{
+            } else {
                 temp = ProcessFunctions.searchWord(this.state.subtitle, e.target.value)
             }
             var firstResult = temp.shift()
-            const currentSubtitle =this.state.subtitle[parseInt(firstResult)-1]
+            const currentSubtitle = this.state.subtitle[parseInt(firstResult) - 1]
             this.handleEditStart(currentSubtitle)
-            if(firstResult != undefined){
+            if (firstResult != undefined) {
                 var scrollToSubtitle = document.getElementById(`subtitle${firstResult}`)
                 scrollToSubtitle.scrollIntoView(true);
             }
@@ -602,7 +548,7 @@ class SubtitleEditPage extends React.Component {
         if (realTime < 1) {
             realTime = 0
         }
-        this.player.seekTo(realTime+1)
+        this.player.seekTo(realTime + 1)
         // console.log(this.player.getCurrentTime())
         // console.log(this.state.playing)
 
@@ -642,22 +588,34 @@ class SubtitleEditPage extends React.Component {
         // }
         return (
             <div className='player-wrapper'>
-                <ReactPlayer
-                    ref={this.ref}
-                    className='react-player'
-                    // url='/Users/lingyun/EdinburghPGT/OBS/sample.mp4'
-                    url={this.props.filePath}
-                    width='50%'
-                    height='50%'
-                    playing={this.state.playing}
-                    controls={this.state.controls}
-                    duration={this.state.duration}
-                    muted={this.state.muted}
+                {this.props.hasVideo ?
+                    <ReactPlayer
+                        ref={this.ref}
+                        className='react-player'
+                        // url='/Users/lingyun/EdinburghPGT/OBS/sample.mp4'
+                        url={this.props.filePath}
+                        width='50%'
+                        height='50%'
+                        playing={this.state.playing}
+                        controls={this.state.controls}
+                        duration={this.state.duration}
+                        muted={this.state.muted}
 
-                    // onReady = {this.handleReady}
-                    onProgress={this.handleProgress}
-                    onDuration={this.handleDuration}
-                />
+                        // onReady = {this.handleReady}
+                        onProgress={this.handleProgress}
+                        onDuration={this.handleDuration}
+                    />
+                    :
+                    // <Button onClick={this.props.openVideo}>
+                    //     Open
+                    // </Button>
+                    <div className='react-player' style={{ backgroundColor: 'black', width: '50%', height: '50%' }}>
+                        <Button onClick={this.props.openVideo} className='openVideo' icon={<PlusCircleOutlined style={{ fontSize: '16px' }} />}>
+                            Open New Video
+                        </Button>
+                    </div>
+                }
+
 
                 {this.state.latexEditMode ?
 
@@ -677,7 +635,12 @@ class SubtitleEditPage extends React.Component {
                     </div>
                     :
                     <div className='currentSubtitle' style={{ display: this.state.displaySubtitle, marginTop: '5%' }}>
-                        {this.state.currentSubtitle}
+
+                        <div className="basic-text">
+                            <p>
+                                {this.state.currentSubtitle}
+                            </p>
+                        </div>
                     </div>
 
                 }
@@ -690,85 +653,81 @@ class SubtitleEditPage extends React.Component {
 
 
 
-                <div className='function-area' >
-                    <Row>
-                        <Tooltip title="Open New Video" placement="top" arrow>
-                            <AddCircleOutlineOutlinedIcon id="open_subtitle" onClick={this.props.openVideo} fontSize='large' />
-                        </Tooltip>
+                {this.props.hasVideo ?
+                    <div className='function-area' >
+                        <Row>
+                            <Tooltip title="Open New Video" placement="top" arrow>
+                                <AddCircleOutlineOutlinedIcon id="open_subtitle" onClick={this.props.openVideo} fontSize='large' />
+                            </Tooltip>
 
-                        <Tooltip title="Open Subtitle" placement="top" arrow>
+                            <Tooltip title="Open Subtitle" placement="top" arrow>
 
-                            {this.state.hasSubtitle ?
-                                <DescriptionOutlinedIcon id="open_subtitle" onClick={this.handleOpenSubtitles} fontSize='large' />
+                                {this.state.hasSubtitle ?
+                                    <DescriptionOutlinedIcon id="open_subtitle" onClick={this.handleOpenSubtitles} fontSize='large' />
+                                    :
+                                    <DescriptionOutlinedIcon style={{
+                                        backgroundColor: 'dodgerblue'
+                                    }} id="open_subtitle" onClick={this.handleOpenSubtitles} fontSize='large' />
+                                }
+                            </Tooltip>
+
+                            {this.state.latexEditMode ?
+                                <Tooltip title="Show/Hide LaTeX Subtitles" placement="top" arrow>
+                                    <img src="assets/images/latexDisplay.svg" id="open_subtitle" onClick={this.handleDisplayLatexSubtitle} style={{ width: '30px' }}></img>
+                                </Tooltip>
                                 :
-                                <DescriptionOutlinedIcon style={{
-                                    backgroundColor: 'dodgerblue'
-                                }} id="open_subtitle" onClick={this.handleOpenSubtitles} fontSize='large' />
+                                <Tooltip title="Show/Hide Subtitles" placement="top" arrow>
+                                    <SubtitlesIcon id="open_subtitle" fontSize='large' onClick={this.handleDisplaySubtitle} />
+                                </Tooltip>
                             }
-                        </Tooltip>
 
-                        {this.state.latexEditMode ?
-                            <Tooltip title="Show/Hide LaTeX Subtitles" placement="top" arrow>
-                                <img src="assets/images/latexDisplay.svg" id="open_subtitle" onClick={this.handleDisplayLatexSubtitle} style={{ width: '30px' }}></img>
-                            </Tooltip>
-                            :
-                            <Tooltip title="Show/Hide Subtitles" placement="top" arrow>
-                                <SubtitlesIcon id="open_subtitle" fontSize='large' onClick={this.handleDisplaySubtitle} />
-                            </Tooltip>
-                        }
-
-                        {/* <Button id="open_subtitle"
+                            {/* <Button id="open_subtitle"
                         onClick={this.generateHtmlFile}>Generate HTML file</Button> */}
 
-                        <Tooltip title="Align Timestamps" placement="top" arrow>
-                            <img src="assets/images/alignTime.svg" id="open_subtitle" onClick={this.handleAlignTime} style={{ width: '30px' }}></img>
+                            <Tooltip title="Align Timestamps" placement="top" arrow>
+                                <img src="assets/images/alignTime.svg" id="open_subtitle" onClick={this.handleAlignTime} style={{ width: '30px' }}></img>
 
-                        </Tooltip>
-                        {this.state.latexEditMode ?
-                            <Tooltip title="Generate math subtitles" placement="top" arrow>
-                                <img src="assets/images/html.svg" id="open_subtitle" onClick={this.generateHtmlFile} style={{ width: '30px' }}></img>
                             </Tooltip>
-                            :
-                            ""
-                        }
-                        {/* <Button onClick={this.saveHtmlFile}>
+                            {this.state.latexEditMode ?
+                                <Tooltip title="Generate math subtitles" placement="top" arrow>
+                                    <img src="assets/images/html.svg" id="open_subtitle" onClick={this.generateHtmlFile} style={{ width: '30px' }}></img>
+                                </Tooltip>
+                                :
+                                ""
+                            }
+                            {/* <Button onClick={this.saveHtmlFile}>
                             Generate Math Subtitle
                         </Button> */}
-                        <Tooltip title="Go to LaTeX Edit Page" placement="top" arrow>
-                            <Button size='small' style={{ position: 'absolute', marginLeft: '75%', marginTop: "1%" }} onClick={this.handleLatexModeChange}>{this.state.latexEditMode ? 'Subtitle Editing Mode' : 'LaTeX Editing Mode'}</Button>
-                        </Tooltip>
+                            <Tooltip title="Go to LaTeX Edit Page" placement="top" arrow>
+                                <Button size='small' style={{ position: 'absolute', marginLeft: '75%', marginTop: "1%" }} onClick={this.handleLatexModeChange}>{this.state.latexEditMode ? 'Subtitle Editing Mode' : 'LaTeX Editing Mode'}</Button>
+                            </Tooltip>
 
-                        {/* <Tooltip title="Align Timestamps" placement="top" arrow>
+                            {/* <Tooltip title="Align Timestamps" placement="top" arrow>
                             {this.state.hasSubtitle ? <DescriptionOutlinedIcon /> : <DescriptionTwoToneIcon />}
 
                         </Tooltip> */}
 
 
-                    </Row>
+                        </Row>
 
-                    {/* <Button id="open_subtitle"
-                        onClick={this.handleAlignTime}>Align timestamps</Button> */}
-
-
-
-                    {/* <Button 
-                        onClick={this.handlePlayPause}
-                        disabled={this.state.display_button}
-                        >
-                        {this.state.playing?"play":"pause"}
-                    </Button>
-                    <Button onClick={() => this.player.getCurrentTime()}>Show preview</Button>
-                    <Button onClick={this.goBackSeconds}>Back 15 seconds</Button>
-                    <Button onClick={this.goNextSeconds}>Next 15 seconds</Button> */}
-                    {/* <Progress>
-
-                    </Progress> */}
-
-                </div>
-                {this.state.hasSubtitle ?
-                    ""
+                    </div>
                     :
-                    <span className="no-subtitle">Please Open a subtitle file</span>}
+                    ""
+                }
+                {this.props.hasVideo ?
+
+
+                    <div>
+                        {
+                            this.state.hasSubtitle ?
+                                ""
+                                :
+                                <Button className="no-subtitle" style={{marginTop:'3.5%'}} onClick={this.handleOpenSubtitles}>Please Open a subtitle file</Button>
+                        }
+                    </div>
+                    :
+                    <Button className="no-subtitle" onClick={this.props.openVideo}>Please Open a new Video</Button>
+                }
 
                 <div className='save-area'
                     style={{ display: this.state.display }}>
@@ -787,7 +746,7 @@ class SubtitleEditPage extends React.Component {
                             overflow: 'hidden',
                             // borderRadius: "10px",
                             // color: "black",
-                        }} type="text" placeholder="Search Captions" onKeyPress={this.handleEnterKey} onChange={this.handleSearch}/>
+                        }} type="text" placeholder="Search Captions" onKeyPress={this.handleEnterKey} onChange={this.handleSearch} />
                         <div style={{
                             marginTop: '2%',
                             marginLeft: '10%',
@@ -825,7 +784,7 @@ class SubtitleEditPage extends React.Component {
                 </div>
                 <div className="subtitle-area" style={{ display: this.state.display }}>
                     {this.state.subtitle.map((item, idx) => (
-                        <SubtitleContent key={idx} data={item} handleEditSubtitle={this.handleEditSubtitle} latexTransferData={this.state.latexTransferData} currentSubtitle={this.state.currentSubtitle} handleEditStart={this.handleEditStart} handleEditing={this.handleEditing} handleEditEnd={this.handleEditEnd} searchResultList={this.state.currentResult}/>
+                        <SubtitleContent key={idx} data={item} handleEditSubtitle={this.handleEditSubtitle} latexTransferData={this.state.latexTransferData} currentSubtitle={this.state.currentSubtitle} handleEditStart={this.handleEditStart} handleEditing={this.handleEditing} handleEditEnd={this.handleEditEnd} searchResultList={this.state.currentResult} />
                     ))}
 
                 </div>

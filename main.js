@@ -1,6 +1,6 @@
 // Main Process
 // ipcMain用于在渲染进程和主进程之间发送和处理消息
-const { app, BrowserWindow, ipcMain, Notification, Menu, Tray, ipcRenderer, clipboard } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, Menu, Tray, ipcRenderer, clipboard, screen } = require('electron');
 const main = require('electron-reload');
 require('@electron/remote/main').initialize()
 const path = require('path');
@@ -132,8 +132,8 @@ function createVideoWindow() {
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 1600,
-        height: 900,
+        width: screen.getPrimaryDisplay().workAreaSize.width,
+        height: screen.getPrimaryDisplay().workAreaSize.height, 
         backgroundColor: '#6e707e',
         show: false,
         webPreferences: {

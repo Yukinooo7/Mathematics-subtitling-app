@@ -1,3 +1,5 @@
+
+
 .player-wrapper {
     position: relative;
     padding-top: 56.25%;
@@ -9,7 +11,7 @@
 .react-player {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 5%;
     /* background-color: blue; */
     /* border-radius: 10%; */
     /* overflow: hidden; */
@@ -19,9 +21,22 @@
     background-color: aliceblue;
 }
 
+.openVideo {
+    /* background-color: blue; */
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    margin:auto auto;
+    /* margin-top: 25%; */
+}
+
 .currentSubtitle {
     position: absolute;
     top: 35%;
+
+    left: 5%;
     z-index: 10;
     background-color: (0,0,0,0.2);
     /* opacity: 0.2; */
@@ -45,7 +60,7 @@
     /* top: 5px; */
     text-align: center;
   }
-   .text p {
+.text p {
     background-color: rgba(11,11,11,0.5);
     /* margin: 4px; */
     padding: 4px;
@@ -55,7 +70,7 @@
 .subtitle-area {
     position: absolute;
     top: 66%;
-    left: 0;
+    left: 5%;
     /* background-color: beige; */
     width: 50%;
     border-radius: 1%;
@@ -70,7 +85,7 @@
     position: absolute;
     top: 0;
     right:10%;
-    width: 30%;
+    width: 50%;
     max-width: 380px;
     /* height: 50%; */
     background-color: beige;
@@ -174,7 +189,7 @@ td {
 .function-area {
     position: absolute;
     top: 50.5%;
-    left: 0;
+    left: 5%;
     width: 50%;
     height:5%;
     max-height: 40px;
@@ -216,19 +231,22 @@ td {
 .no-subtitle {
 
     position: absolute;
-    top: 58%;
-    left: 0;
+    top: 50.5%;
+    left: 5%;
     width: 50%;
-    height: 6%;
-    text-align: left;
-    /* cursor: pointer; */
+    /* height: 6%; */
+    text-align: center;
+    cursor: pointer;
     font-weight: bold;
+    color: black;
+    font: 12pt;
+
 }
 
 .save-area {
     position: absolute;
     top: 58%;
-    left: 0;
+    left: 5%;
     width: 50%;
     height: 6%;
 
